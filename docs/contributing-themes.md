@@ -246,7 +246,7 @@ node scripts/gen-themes-json.js
 - `pnpm fix-theme`:执行修复,把不连续的帧图重命名为 `0..n-1`(立绘主题自动跳过)
 - `cmd/check-theme`:校验目录名、帧完整性、格式与尺寸
 - `scripts/validate-theme-meta.js`:校验 `meta.json` schema
-- `scripts/gen-themes-json.js`:校验 `assets/themes.json` 已同步
+- `scripts/gen-themes-json.js`:重新生成 `assets/themes.json`,提交前确认变更只包含预期主题
 
 提交主题前建议一并跑 `pnpm convert:webp:check` 确认图片已转为 WebP
 (详见下文「图片转 WebP」),以及 `pnpm optimize:images:check` 确认保留的
