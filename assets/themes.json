@@ -6,6 +6,16 @@
       "ext": "webp"
     },
     {
+      "name": "furi",
+      "frames": 107,
+      "ext": "webp"
+    },
+    {
+      "name": "hinata",
+      "frames": 99,
+      "ext": "webp"
+    },
+    {
       "name": "kamome",
       "frames": 18,
       "ext": "webp"
@@ -26,13 +36,183 @@
       "ext": "webp"
     },
     {
+      "name": "lian-ren",
+      "frames": 71,
+      "ext": "webp"
+    },
+    {
       "name": "Miki",
       "frames": 5,
       "ext": "webp"
     },
     {
+      "name": "minato",
+      "frames": 87,
+      "ext": "webp"
+    },
+    {
+      "name": "miyu",
+      "frames": 86,
+      "ext": "webp"
+    },
+    {
+      "name": "nanami",
+      "frames": 105,
+      "ext": "webp"
+    },
+    {
       "name": "Ryouichi",
       "frames": 12,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-akagi",
+      "frames": 36,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-douko",
+      "frames": 36,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-hideaki",
+      "frames": 29,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-kanae",
+      "frames": 30,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-koshiji",
+      "frames": 27,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-meguru",
+      "frames": 50,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-nao",
+      "frames": 25,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-nene",
+      "frames": 51,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-taichi",
+      "frames": 27,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-tsumugi",
+      "frames": 57,
+      "ext": "webp"
+    },
+    {
+      "name": "sanoba-wakura",
+      "frames": 37,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-genjiro",
+      "frames": 22,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-haku",
+      "frames": 12,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-hinami",
+      "frames": 17,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-koharu",
+      "frames": 39,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-koharu-b",
+      "frames": 23,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-kokoro",
+      "frames": 13,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-mako",
+      "frames": 60,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-mako-b",
+      "frames": 51,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-mizuha",
+      "frames": 27,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-murasame",
+      "frames": 48,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-murasame-b",
+      "frames": 42,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-rena",
+      "frames": 43,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-rena-b",
+      "frames": 37,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-rentaro",
+      "frames": 33,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-roka",
+      "frames": 30,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-roka-b",
+      "frames": 17,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-yasuharu",
+      "frames": 21,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-yoshino",
+      "frames": 59,
+      "ext": "webp"
+    },
+    {
+      "name": "senren-yoshino-b",
+      "frames": 43,
       "ext": "webp"
     },
     {
@@ -58,6 +238,11 @@
     {
       "name": "wenders",
       "frames": 6,
+      "ext": "webp"
+    },
+    {
+      "name": "yuzu",
+      "frames": 103,
       "ext": "webp"
     }
   ]
