@@ -18,6 +18,12 @@ import (
 	"github.com/miaoledor/lolicount/internal/imgcore/theme"
 )
 
+// DemoText is the fixed number rendered for the reserved name=demo.
+// It is part of the public contract (Iron Rule 1: demo is fixed
+// 0123456789 and never stored) and is also the text used by
+// cmd/gen-theme-thumbs when pre-rendering gallery thumbnails.
+const DemoText = "0123456789"
+
 // counterHandler renders GET /@:name (and the /get/@:name alias).
 func (s *Server) counterHandler(c fiber.Ctx) error {
 	// Fiber/fasthttp route params can reference a per-request buffer that
@@ -50,7 +56,7 @@ func (s *Server) counterHandler(c fiber.Ctx) error {
 		if q.Number > 0 {
 			text = strconv.FormatInt(q.Number, 10)
 		} else {
-			text = "0123456789"
+			text = DemoText
 		}
 	case q.Number > 0:
 		text = strconv.FormatInt(q.Number, 10)

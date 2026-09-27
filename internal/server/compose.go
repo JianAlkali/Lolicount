@@ -20,7 +20,7 @@ import (
 	"github.com/miaoledor/lolicount/internal/imgcore/theme"
 )
 
-// buildThemeLayers takes a loaded *theme.Theme (from the registry) and
+// BuildThemeLayers takes a loaded *theme.Theme (from the registry) and
 // produces a renderable theme with the text layer appended. Scale is
 // applied to image dimensions for single-image (ImageLayer) themes and
 // multi-frame (RandomPickLayer) themes. Character (GroupLayer) themes
@@ -30,11 +30,14 @@ import (
 // This function does NOT mutate the registry's shared *theme.Theme — it
 // builds fresh layers so concurrent requests and repeated calls see
 // consistent dimensions.
-func buildThemeLayers(base *theme.Theme, scale float64, text string,
+//
+// Exported so cmd/gen-theme-thumbs can pre-render identical gallery
+// thumbnails without a running server.
+func BuildThemeLayers(base *theme.Theme, scale float64, text string,
 	fontSize int, unshowFont bool, style theme.TextStyle, pos theme.TextPos) (*theme.Theme, error) {
 
 	if base == nil {
-		return nil, fmt.Errorf("buildThemeLayers: nil theme")
+		return nil, fmt.Errorf("BuildThemeLayers: nil theme")
 	}
 
 	s := scaleOrOne(scale)
@@ -137,7 +140,7 @@ func (s *Server) compose(entry composer.ThemeEntry, q *queryParams, text string,
 	}
 
 	pos := theme.TextPos{X: q.X, Y: q.Y, RX: q.RX, RY: q.RY}
-	t, err := buildThemeLayers(base, q.Scale, text, q.FSize, q.UnshowF, style, pos)
+	t, err := BuildThemeLayers(base, q.Scale, text, q.FSize, q.UnshowF, style, pos)
 	if err != nil {
 		return "", err
 	}

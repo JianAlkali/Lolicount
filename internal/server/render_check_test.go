@@ -42,9 +42,9 @@ func TestRenderDimensionsUnified(t *testing.T) {
 			}
 
 			pos := theme.TextPos{}
-			th, err := buildThemeLayers(base, 0, tc.text, tc.fsize, false, theme.TextStyle{}, pos)
+			th, err := BuildThemeLayers(base, 0, tc.text, tc.fsize, false, theme.TextStyle{}, pos)
 			if err != nil {
-				t.Fatalf("buildThemeLayers %s: %v", tc.name, err)
+				t.Fatalf("BuildThemeLayers %s: %v", tc.name, err)
 			}
 
 			// BgW/BgH should be the scaled display size (longest edge = 400),

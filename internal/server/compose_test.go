@@ -66,9 +66,9 @@ func TestBuildThemeLayersRandomPickScale(t *testing.T) {
 		{srcW, srcH},
 	})
 
-	got, err := buildThemeLayers(base, 0, "123", 50, false, theme.TextStyle{}, theme.TextPos{})
+	got, err := BuildThemeLayers(base, 0, "123", 50, false, theme.TextStyle{}, theme.TextPos{})
 	if err != nil {
-		t.Fatalf("buildThemeLayers: %v", err)
+		t.Fatalf("BuildThemeLayers: %v", err)
 	}
 
 	wantW, wantH := imgutils.ScaledDims(srcW, srcH, imgutils.DefaultDisplaySize)
@@ -88,7 +88,7 @@ func TestBuildThemeLayersRandomPickScale(t *testing.T) {
 }
 
 // TestBuildThemeLayersDoesNotMutateRegistry verifies that calling
-// buildThemeLayers does not mutate the shared registry theme's layer
+// BuildThemeLayers does not mutate the shared registry theme's layer
 // dimensions across repeated calls. This guards against a regression
 // where ImageLayer Width/Height were modified in place.
 func TestBuildThemeLayersDoesNotMutateRegistry(t *testing.T) {
@@ -98,7 +98,7 @@ func TestBuildThemeLayersDoesNotMutateRegistry(t *testing.T) {
 	})
 
 	for i := 0; i < 3; i++ {
-		_, _ = buildThemeLayers(base, 0, "1", 50, false, theme.TextStyle{}, theme.TextPos{})
+		_, _ = BuildThemeLayers(base, 0, "1", 50, false, theme.TextStyle{}, theme.TextPos{})
 	}
 
 	rpl, ok := base.Layers[0].(*render.RandomPickLayer)
@@ -133,9 +133,9 @@ func TestBuildThemeLayersRandomPickCanvasFitsAllFrames(t *testing.T) {
 	}
 	base := makeMultiFrameTheme("test-fit", frames)
 
-	got, err := buildThemeLayers(base, 0, "1", 50, false, theme.TextStyle{}, theme.TextPos{})
+	got, err := BuildThemeLayers(base, 0, "1", 50, false, theme.TextStyle{}, theme.TextPos{})
 	if err != nil {
-		t.Fatalf("buildThemeLayers: %v", err)
+		t.Fatalf("BuildThemeLayers: %v", err)
 	}
 
 	rpl, ok := got.Layers[0].(*render.RandomPickLayer)

@@ -355,10 +355,11 @@ onMounted(async () => {
               @click="selectTheme(tth.name)"
             >
               <div class="rounded-lg bg-loli-cream flex items-center justify-center overflow-hidden mb-2 h-28">
+                <!-- Static pre-rendered thumbs (cmd/gen-theme-thumbs): the live /@demo URL fires one render request per card, and a 500-card grid bursts past the IP rate limit (429) and breaks every image. -->
                 <img
                   :src="tth.animated
                     ? `/images/emote-thumbs/${tth.name}.webp`
-                    : buildCounterUrl({ name: 'demo', theme: tth.name, number: 0, unshowf: true })"
+                    : `/images/theme-thumbs/${tth.name}.svg`"
                   :alt="tth.name"
                   class="max-h-24 object-contain"
                   loading="lazy"
