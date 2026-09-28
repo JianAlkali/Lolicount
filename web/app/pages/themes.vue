@@ -132,28 +132,37 @@ const previewUrl = computed(() => {
 // Download the EXACT frame currently displayed. The preview URL renders a
 // fresh random frame on every fetch (no-store + per-request PRNG seed), so
 // a plain <a download> would save a different frame — instead the loaded
-// <img> is rasterized through a same-origin canvas and exported as a
-// full-resolution PNG. Static themes only: animated previews are WebGL
-// canvases with no per-frame image endpoint.
+// <img> is rasterized through a canvas and exported as a full-resolution
+// PNG. Static themes only: animated previews are WebGL canvases with no
+// per-frame image endpoint.
 const previewImgEl = ref<HTMLImageElement | null>(null)
 const downloadFrame = () => {
   const img = previewImgEl.value
   if (!img || !img.naturalWidth || !img.naturalHeight) return
-  const canvas = document.createElement('canvas')
-  canvas.width = img.naturalWidth
-  canvas.height = img.naturalHeight
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  ctx.drawImage(img, 0, 0)
-  canvas.toBlob((blob) => {
-    if (!blob) return
-    const url = URL.createObjectURL(blob)
+  try {
+    const canvas = document.createElement('canvas')
+    canvas.width = img.naturalWidth
+    canvas.height = img.naturalHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.drawImage(img, 0, 0)
+    // Synchronous toDataURL keeps the download inside the user-gesture
+    // task — Safari blocks downloads from async callbacks (toBlob) after
+    // the gesture window closes.
+    const url = canvas.toDataURL('image/png')
     const a = document.createElement('a')
     a.href = url
     a.download = `${selectedTheme.value}-frame.png`
+    // Safari ignores clicks on detached anchors — mount before clicking.
+    document.body.appendChild(a)
     a.click()
-    URL.revokeObjectURL(url)
-  }, 'image/png')
+    a.remove()
+  } catch {
+    // Tainted-canvas SecurityError (cross-origin preview without CORS):
+    // fall back to opening the render URL so the frame can be saved
+    // manually.
+    window.open(previewUrl.value, '_blank', 'noopener')
+  }
 }
 
 const reloadPreview = () => {
@@ -351,6 +360,7 @@ onMounted(async () => {
               ref="previewImgEl"
               :src="previewUrl"
               :alt="selectedTheme"
+              crossorigin="anonymous"
               class="max-h-72 object-contain"
             />
           </div>

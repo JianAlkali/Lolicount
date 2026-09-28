@@ -99,6 +99,12 @@ func (s *Server) counterHandler(c fiber.Ctx) error {
 	}
 
 	c.Set("Content-Type", "image/svg+xml")
+	// CORS open: counters are public images, and the frontend's
+	// download-current-frame feature rasterizes the cross-origin preview
+	// (Nuxt dev serves the site on :3721 while the API runs on :9721) onto
+	// a canvas — without this header the canvas is tainted and export
+	// throws a SecurityError.
+	c.Set("Access-Control-Allow-Origin", "*")
 	// Iron Rule 1: demo with a fixed value (number>0) or a single-frame
 	// theme is long-cached because the output is deterministic. Demo with
 	// a multi-frame theme uses random selection, so it must be no-store.

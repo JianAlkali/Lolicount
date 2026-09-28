@@ -149,6 +149,26 @@ func TestCounterGetAlias(t *testing.T) {
 	}
 }
 
+// TestCounterOpenCORS pins the open CORS header on counter responses.
+// The frontend's download-current-frame feature rasterizes the preview
+// onto a canvas; in dev the site (:3721) and API (:9721) are
+// cross-origin, so without ACAO on the image response the canvas is
+// tainted and export throws a SecurityError.
+func TestCounterOpenCORS(t *testing.T) {
+	s := newCounterServer(t)
+	req := httptest.NewRequest(http.MethodGet, "/@demo?theme=lian", nil)
+	resp, err := s.app.Test(req)
+	if err != nil {
+		t.Fatalf("app.Test: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status: %d", resp.StatusCode)
+	}
+	if allow := resp.Header.Get("Access-Control-Allow-Origin"); allow != "*" {
+		t.Errorf("Access-Control-Allow-Origin: got %q want *", allow)
+	}
+}
+
 // TestCounterRealNameCacheControl pins the cache header for the real
 // per-view counting path: every real-count response must carry the
 // full no-cache combo, not just bare no-store — GitHub's Fastly edge

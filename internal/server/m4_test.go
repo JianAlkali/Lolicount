@@ -121,14 +121,18 @@ func TestCORSSetsHeadersOnAPI(t *testing.T) {
 	}
 }
 
-// TestNoCORSOnCounter: counter SVG paths must NOT carry CORS headers.
-func TestNoCORSOnCounter(t *testing.T) {
+// TestCounterOpenCORSWithOrigin: counter SVG responses carry a plain
+// wildcard ACAO (not origin reflection) even when the request sends an
+// Origin header. Counters are public images; the frontend's
+// download-current-frame feature needs CORS to rasterize the dev-mode
+// cross-origin preview without tainting the canvas.
+func TestCounterOpenCORSWithOrigin(t *testing.T) {
 	s := m4Server(t, 1000, 100000, 1000)
 	req := httptest.NewRequest(http.MethodGet, "/@nocors?theme=lian", nil)
 	req.Header.Set("Origin", "https://example.com")
 	resp, _ := s.app.Test(req)
-	if ao := resp.Header.Get("Access-Control-Allow-Origin"); ao != "" {
-		t.Errorf("counter SVG must not have CORS, got ACAO=%q", ao)
+	if ao := resp.Header.Get("Access-Control-Allow-Origin"); ao != "*" {
+		t.Errorf("counter SVG ACAO: got %q want *", ao)
 	}
 }
 
