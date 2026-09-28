@@ -429,7 +429,6 @@ onMounted(async () => {
       </div>
     </div>
 
-    <Site-footer />
     <BackToTop />
   </main>
 </template>
