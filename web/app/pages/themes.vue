@@ -78,16 +78,26 @@ const applyThemeSelection = (name: string) => {
   state.theme = name
 }
 
+// Default selection: lian-ren when present, else the first theme.
+const defaultThemeName = () => {
+  const lianRen = themes.value.find((tth) => tth.name === 'lian-ren')
+  return lianRen ? lianRen.name : (themes.value[0]?.name ?? '')
+}
+
 // Soft-navigation support: picking up ?theme= when the query changes
 // while the page stays mounted. Skips unknown names; the writer path
-// (selectTheme) is a no-op here because the name already matches.
+// (selectTheme) is a no-op here because the name already matches. When
+// the param is removed (e.g. the navbar links to plain /themes), the
+// selection falls back to the default so the clean URL and the preview
+// stay consistent with a fresh visit.
 watch(
   () => route.query.theme,
   (q) => {
+    if (themes.value.length === 0) return
     const name = typeof q === 'string' ? q : ''
-    if (!name || name === selectedTheme.value) return
-    if (!themes.value.some((tth) => tth.name === name)) return
-    applyThemeSelection(name)
+    if (name === selectedTheme.value) return
+    if (name && !themes.value.some((tth) => tth.name === name)) return
+    applyThemeSelection(name || defaultThemeName())
   },
 )
 
@@ -204,8 +214,7 @@ onMounted(async () => {
   if (fromQuery && themes.value.some((tth) => tth.name === fromQuery)) {
     applyThemeSelection(fromQuery)
   } else {
-    const lianRen = themes.value.find((tth) => tth.name === 'lian-ren')
-    applyThemeSelection(lianRen ? lianRen.name : (themes.value[0]?.name ?? ''))
+    applyThemeSelection(defaultThemeName())
   }
   await fetchConfig()
 })
