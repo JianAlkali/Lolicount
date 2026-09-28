@@ -119,10 +119,14 @@ const howToUrl = computed(() =>
             :title="t('themes.reload')"
             @click="reloadShowcase"
           >
+            <!-- Polaroid-style card, same presentation as StarPleaCard's
+                 mascot: rounded, shadowed, slightly tilted; white backing
+                 turns the render's transparent background into a photo
+                 card. Hover straightens it back up. -->
             <img
               :src="showcaseUrl"
               :alt="selectedShowcase"
-              class="h-full w-full object-contain"
+              class="max-h-full max-w-[90%] w-auto object-contain rounded-2xl bg-white p-3 shadow-md -rotate-2 transition-transform duration-300 hover:rotate-0 hover:scale-[1.02]"
             />
           </div>
           <div
