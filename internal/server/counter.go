@@ -81,6 +81,15 @@ func (s *Server) counterHandler(c fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		text = strconv.FormatInt(count, 10)
+		// Theme usage tracking feeds the hot-themes list (startup + hourly
+		// refresh): every real render counts, degraded name-limit views
+		// included — they are real visitors. Demo/number renders are not
+		// usage. Failure to track is non-fatal.
+		if s.themeUsage != nil {
+			if _, err := s.themeUsage.Incr(c.Context(), entry.Name); err != nil {
+				s.logger.Warn().Err(err).Str("theme", entry.Name).Msg("theme usage incr failed")
+			}
+		}
 	}
 
 	// Apply the custom text template when provided. The literal "{n}"

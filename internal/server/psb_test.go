@@ -46,7 +46,7 @@ func TestPsbDirLoadedFromDisk(t *testing.T) {
 		Host: "127.0.0.1", Port: 0, DBInterval: 10, PSBDir: dir,
 		RateLimitIPPerSec: 10000, RateLimitIPPerMin: 100000, RateLimitNamePerSec: 10000,
 	}
-	s := New(cfg, zerolog.Nop(), nil, nil, nil)
+	s := New(cfg, zerolog.Nop(), nil, nil, nil, nil)
 	t.Cleanup(func() {
 		s.ipLimiter.Stop()
 		s.nameLimiter.Stop()
@@ -84,7 +84,7 @@ func TestPsbDirMissingDisablesEndpoints(t *testing.T) {
 		PSBDir:            filepath.Join(t.TempDir(), "not-there"),
 		RateLimitIPPerSec: 10000, RateLimitIPPerMin: 100000, RateLimitNamePerSec: 10000,
 	}
-	s := New(cfg, zerolog.Nop(), nil, nil, nil)
+	s := New(cfg, zerolog.Nop(), nil, nil, nil, nil)
 	t.Cleanup(func() {
 		s.ipLimiter.Stop()
 		s.nameLimiter.Stop()

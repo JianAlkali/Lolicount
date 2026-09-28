@@ -23,7 +23,7 @@ func multiFrameServer(t *testing.T) *Server {
 		Host: "127.0.0.1", Port: 0, DBInterval: 10,
 		RateLimitIPPerSec: 10000, RateLimitIPPerMin: 100000, RateLimitNamePerSec: 10000,
 	}
-	s := New(cfg, zerolog.Nop(), reg, nil, nil)
+	s := New(cfg, zerolog.Nop(), reg, nil, nil, nil)
 	t.Cleanup(func() {
 		s.ipLimiter.Stop()
 		s.nameLimiter.Stop()
@@ -82,7 +82,7 @@ func adminServer(t *testing.T, adminKey string) *Server {
 		RateLimitIPPerSec: 10000, RateLimitIPPerMin: 100000, RateLimitNamePerSec: 10000,
 		AdminKey: adminKey,
 	}
-	s := New(cfg, zerolog.Nop(), nil, nil, nil)
+	s := New(cfg, zerolog.Nop(), nil, nil, nil, nil)
 	t.Cleanup(func() {
 		s.ipLimiter.Stop()
 		s.nameLimiter.Stop()

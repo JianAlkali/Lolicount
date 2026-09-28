@@ -70,6 +70,7 @@ agent铁律-不要修改该文件的任何描述内容,至允许修改当前任�
 - [x] 设置 `Cache-Control: no-store`(非 demo),`demo` 长缓存(铁律 1)
 - [x] AGENTS.md 铁律1 与缓存表同步为 no-cache 组合头(`no-store, no-cache, max-age=0, must-revalidate`,GitHub camo/Fastly 边缘无视裸 no-store;经用户一次性授权修改)
 - [ ] `docs/projectDesign.md` 缓存契约仍写裸 `no-store`(文件禁止修改,待用户同步为 no-cache 组合头)
+- [ ] `docs/projectDesign.md` 接口文档缺 `GET /api/themes/hot`(热门主题,启动/每小时更新)与 `tb_theme_usage` 表(文件禁止修改,待用户同步)
 - [x] 实现 `server/params.go`:`QueryParams` 结构体 + validator 标签 + `applyDefaults()`
 - [x] 验证:压测超限返回 429 / 降级;参数非法返回 400
 

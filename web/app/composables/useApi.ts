@@ -54,6 +54,13 @@ export const useApi = () => {
     return data.fthemes ?? []
   }
 
+  // Hot themes: top-10 names by usage, recomputed server-side at startup
+  // and hourly. Non-critical — callers should tolerate failures (empty).
+  const fetchHotThemes = async (): Promise<string[]> => {
+    const data = await $fetch<{ hot: string[] }>(`${base}/api/themes/hot`)
+    return data.hot ?? []
+  }
+
   const fetchConfig = async () => {
     try {
       const data = await $fetch<{ baseUrl: string }>(`${base}/api/config`)
@@ -85,5 +92,5 @@ export const useApi = () => {
     return `${root}/@${encodeURIComponent(params.name)}${qs ? `?${qs}` : ''}`
   }
 
-  return { fetchThemes, fetchFThemes, fetchConfig, buildCounterUrl, publicBase }
+  return { fetchThemes, fetchFThemes, fetchHotThemes, fetchConfig, buildCounterUrl, publicBase }
 }

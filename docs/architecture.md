@@ -71,6 +71,23 @@ CREATE TABLE IF NOT EXISTS tb_count (
 `name` 的 `UNIQUE` 约束自带唯一索引,是 upsert 触发条件,并保证并发
 upsert 同一 name 不会产生重复行。业务从不按 `num` 查询,无需额外索引。
 
+### `tb_theme_usage` 表(主题热度统计)
+
+```sql
+CREATE TABLE IF NOT EXISTS tb_theme_usage (
+    theme VARCHAR(128) NOT NULL PRIMARY KEY,
+    num   BIGINT       NOT NULL DEFAULT 0
+);
+```
+
+主题使用量的持久化,数据源是真实计数渲染(每次 `/@:name?theme=X` 渲染
++1;demo / number 渲染不计)。实现上完全复用 `counter.Buffer` 的批处理
+语义:第二个 Buffer 实例通过 `store.Repository` 的 `ThemeUsage()` 视图
+把读写隔离到本表,绝不混入 `tb_count` 的用户计数命名空间。热门主题列表
+(`GET /api/themes/hot`,固定 10 个)按规格在**启动时与每小时**从使用量
+缓存重算;无使用量时回退为注册表前 10 个主题。前端 Playground 以可折叠
+分组展示:热门组置顶,其余按来源游戏分组、默认折叠。
+
 ## 渲染模型
 
 渲染核心在 `internal/imgcore`,server 只调 `composer.Compose`。所有主题

@@ -3,7 +3,7 @@ import type { ParamState } from '~/components/ParamPanel.vue'
 import { gameMeta, themeMeta, buildSearchHaystack } from '~/utils/themeMeta'
 import type { GameKey, ThemeKind } from '~/utils/themeMeta'
 
-const { fetchThemes, fetchFThemes, fetchConfig, buildCounterUrl, publicBase } = useApi()
+const { fetchThemes, fetchFThemes, fetchHotThemes, fetchConfig, buildCounterUrl, publicBase } = useApi()
 const { t, locale } = useI18n()
 
 const themes = ref<ThemeInfo[]>([])
@@ -23,15 +23,14 @@ const merged = computed(() =>
   }),
 )
 
-// Filters + search state.
-const gameFilter = ref<GameKey | 'all'>('all')
+// Filters + search state. The game filter dropdown was replaced by
+// per-source collapsible groups below.
 const kindFilter = ref<ThemeKind | 'all'>('all')
 const searchQuery = ref('')
 
 const filteredThemes = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   return merged.value.filter((tth) => {
-    if (gameFilter.value !== 'all' && tth.meta?.gameKey !== gameFilter.value) return false
     if (kindFilter.value !== 'all' && tth.meta?.kind !== kindFilter.value) return false
     if (q && !tth.haystack.includes(q)) return false
     return true
@@ -39,6 +38,7 @@ const filteredThemes = computed(() => {
 })
 
 // Game filter options: only games that actually have themes, "other" last.
+// Drives the group ordering of the collapsible source sections.
 const gameOptions = computed(() => {
   const present = new Set(merged.value.map((tth) => tth.meta?.gameKey ?? 'other'))
   const keys = Object.keys(gameMeta) as GameKey[]
@@ -55,6 +55,45 @@ const gameLabel = (key: GameKey) => {
 }
 
 const resultCount = computed(() => filteredThemes.value.length)
+
+// Collapsible source groups: a hot group (server's usage-based top 10,
+// refreshed at startup and hourly) followed by one group per game.
+// Themes surfaced in the hot group are excluded from their game group.
+type ThemeGroup = { key: string; label: string; hot: boolean; items: typeof merged.value }
+
+const hotNames = ref<string[]>([])
+const filtersActive = computed(() => kindFilter.value !== 'all' || searchQuery.value.trim().length > 0)
+
+const groups = computed<ThemeGroup[]>(() => {
+  const out: ThemeGroup[] = []
+  const consumed = new Set<string>()
+  const hot = hotNames.value
+    .map((name) => filteredThemes.value.find((tth) => tth.name === name))
+    .filter((x): x is NonNullable<typeof x> => !!x)
+  if (hot.length > 0) {
+    out.push({ key: '__hot', label: t('themesGallery.hotGroup'), hot: true, items: hot })
+    hot.forEach((x) => consumed.add(x.name))
+  }
+  for (const key of gameOptions.value) {
+    const items = filteredThemes.value.filter(
+      (tth) => !consumed.has(tth.name) && (tth.meta?.gameKey ?? 'other') === key,
+    )
+    if (items.length > 0) {
+      out.push({ key, label: gameLabel(key), hot: false, items })
+    }
+  }
+  return out
+})
+
+// Group expand state: collapsed by default (spec). While search/type
+// filters are active, matching groups auto-expand so results stay
+// visible without extra clicks.
+const expandedGroups = reactive(new Set<string>())
+const toggleGroup = (key: string) => {
+  if (expandedGroups.has(key)) expandedGroups.delete(key)
+  else expandedGroups.add(key)
+}
+const isGroupOpen = (key: string) => filtersActive.value || expandedGroups.has(key)
 
 // Selected theme + preview with a cache-buster (same reload trick as the
 // home page showcase: the back-end picks a random frame per request).
@@ -244,6 +283,12 @@ const generate = (e: MouseEvent) => {
 onMounted(async () => {
   themes.value = await fetchThemes()
   fthemes.value = await fetchFThemes()
+  // Hot list is non-critical: an API hiccup just hides the hot group.
+  try {
+    hotNames.value = await fetchHotThemes()
+  } catch {
+    hotNames.value = []
+  }
   // Restore ?theme= from the URL; fall back to the default selection for
   // plain visits or unknown names (URL stays clean in the fallback).
   const fromQuery = typeof route.query.theme === 'string' ? route.query.theme : ''
@@ -388,25 +433,15 @@ onMounted(async () => {
       <!-- Filters + theme grid: last on mobile; on desktop grid
            auto-placement puts it in the second row, left column. -->
       <div>
-        <!-- Filter bar -->
+        <!-- Filter bar: search + type filter. The game dropdown was
+             replaced by the collapsible per-source groups below. -->
         <section class="mb-6 rounded-xl bg-loli-cream p-4 space-y-3">
-          <div class="flex flex-col sm:flex-row gap-3">
-            <select
-              v-model="gameFilter"
-              class="flex-1 border rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink cursor-pointer transition"
-            >
-              <option value="all">{{ t('themesGallery.allGames') }}</option>
-              <option v-for="key in gameOptions" :key="key" :value="key">
-                {{ gameLabel(key) }}
-              </option>
-            </select>
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="t('themesGallery.searchPlaceholder')"
-              class="flex-1 border rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink transition"
-            />
-          </div>
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="t('themesGallery.searchPlaceholder')"
+            class="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink transition"
+          />
           <div class="flex items-center gap-2 flex-wrap">
             <button
               v-for="opt in [
@@ -429,45 +464,66 @@ onMounted(async () => {
           </div>
         </section>
 
-        <!-- Theme grid: click a card to select it (also syncs the playground). -->
+        <!-- Theme groups: hot first, then one collapsible section per
+             source game. Collapsed by default; auto-expanded while
+             search/type filters are active. -->
         <section>
-          <div v-if="filteredThemes.length" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <button
-              v-for="tth in filteredThemes"
-              :key="tth.name"
-              type="button"
-              :class="cn(
-                'rounded-xl border-2 p-3 text-left transition bg-white',
-                selectedTheme === tth.name
-                  ? 'border-loli-pink shadow-sm'
-                  : 'border-transparent hover:border-loli-pink/40'
-              )"
-              @click="selectTheme(tth.name)"
-            >
-              <div class="rounded-lg bg-loli-cream flex items-center justify-center overflow-hidden mb-2 h-28">
-                <!-- Static pre-rendered thumbs (cmd/gen-theme-thumbs, compressed
-                     to card-sized webp by scripts/gen-theme-thumbs-webp.mjs): the live
-                     /@demo URL fires one render request per card, and a 500-card grid
-                     bursts past the IP rate limit (429) and breaks every image. -->
-                <img
-                  :src="tth.animated
-                    ? `/images/emote-thumbs/${tth.name}.webp`
-                    : `/images/theme-thumbs/${tth.name}.webp`"
-                  :alt="tth.name"
-                  class="max-h-24 object-contain"
-                  loading="lazy"
-                />
+          <div v-if="groups.length" class="space-y-3">
+            <div v-for="g in groups" :key="g.key">
+              <button
+                type="button"
+                class="w-full flex items-center gap-2 rounded-lg bg-loli-cream px-4 py-2.5 text-left transition hover:bg-loli-pink/10"
+                :aria-expanded="isGroupOpen(g.key)"
+                @click="toggleGroup(g.key)"
+              >
+                <span class="text-xs text-loli-pink w-4">{{ isGroupOpen(g.key) ? '▼' : '▶' }}</span>
+                <span class="font-medium text-sm">{{ g.label }}</span>
+                <span
+                  v-if="g.hot"
+                  class="text-[10px] leading-none px-1.5 py-1 rounded-full bg-loli-pink text-white font-semibold"
+                  :title="t('themesGallery.hotHint')"
+                >HOT</span>
+                <span class="ml-auto text-xs text-gray-500">{{ g.items.length }}</span>
+              </button>
+              <div v-show="isGroupOpen(g.key)" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3">
+                <button
+                  v-for="tth in g.items"
+                  :key="tth.name"
+                  type="button"
+                  :class="cn(
+                    'rounded-xl border-2 p-3 text-left transition bg-white',
+                    selectedTheme === tth.name
+                      ? 'border-loli-pink shadow-sm'
+                      : 'border-transparent hover:border-loli-pink/40'
+                  )"
+                  @click="selectTheme(tth.name)"
+                >
+                  <div class="rounded-lg bg-loli-cream flex items-center justify-center overflow-hidden mb-2 h-28">
+                    <!-- Static pre-rendered thumbs (cmd/gen-theme-thumbs, compressed
+                         to card-sized webp by scripts/gen-theme-thumbs-webp.mjs): the live
+                         /@demo URL fires one render request per card, and a 500-card grid
+                         bursts past the IP rate limit (429) and breaks every image. -->
+                    <img
+                      :src="tth.animated
+                        ? `/images/emote-thumbs/${tth.name}.webp`
+                        : `/images/theme-thumbs/${tth.name}.webp`"
+                      :alt="tth.name"
+                      class="max-h-24 object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p class="text-sm font-medium truncate">{{ tth.name }}</p>
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ tth.meta ? tth.meta.character : t('themesGallery.unknownMeta') }}
+                  </p>
+                  <!-- Variation count from /api/themes (product of random layer
+                       candidates; absent for animated themes). -->
+                  <p v-if="tth.variants" class="text-xs text-gray-400 truncate">
+                    {{ t('themes.variants', { n: tth.variants.toLocaleString() }) }}
+                  </p>
+                </button>
               </div>
-              <p class="text-sm font-medium truncate">{{ tth.name }}</p>
-              <p class="text-xs text-gray-500 truncate">
-                {{ tth.meta ? tth.meta.character : t('themesGallery.unknownMeta') }}
-              </p>
-              <!-- Variation count from /api/themes (product of random layer
-                   candidates; absent for animated themes). -->
-              <p v-if="tth.variants" class="text-xs text-gray-400 truncate">
-                {{ t('themes.variants', { n: tth.variants.toLocaleString() }) }}
-              </p>
-            </button>
+            </div>
           </div>
           <div v-else class="rounded-xl bg-loli-cream p-10 text-center text-sm text-gray-400">
             {{ t('themesGallery.noResults') }}
