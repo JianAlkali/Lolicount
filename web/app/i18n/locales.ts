@@ -158,7 +158,7 @@ const zh: Dict = {
   'about.contributeLink': '主题贡献指南',
   'about.starTitle': '求求你给一个star',
   'about.starAlt': '哭哭求 star 的看板娘',
-  'about.starDesc': '每一个 star 都是作者深夜修 bug 的动力——真的会哭出来的那种,看图就知道了。',
+  'about.starDesc': '真的真的很需要你的一个 star 作为我更新的动力！',
   'about.starButton': '给个 star',
   'about.starCount': '已有 {n} 个 star',
 
@@ -195,18 +195,6 @@ const zh: Dict = {
   'tool.value': '值 Value',
   'tool.unusual': '非常规选项 Unusual Options',
 
-  'footer.credits': '感谢所有贡献者',
-  'footer.poweredBy': '由 ❤ 与 Go + Nuxt 驱动',
- 'footer.repo': 'GitHub 仓库',
- 'footer.author': '作者',
- 'footer.donate': '赞助本项目',
-  'footer.starHint': '真的真的很需要你的一个 star 作为我更新的动力！',
-  'footer.donateHint': '如果 Lolicount 对你有帮助,可以请作者喝杯奶茶 🧋',
-  'footer.contributors': '贡献者',
-  'footer.tagline': '萌系可换肤 SVG 访问计数器',
-  'footer.author': '作者',
-  'footer.repo': 'GitHub 仓库',
-  'footer.thanks': '致谢项目',
 }
 
 const en: Dict = {
@@ -353,7 +341,7 @@ const en: Dict = {
   'about.contributeLink': 'Theme contribution guide',
   'about.starTitle': 'Pretty please, give a star',
   'about.starAlt': 'Crying mascot begging for a star',
-  'about.starDesc': 'Every star fuels the late-night bug fixing — the mascot is really not exaggerating, see for yourself.',
+  'about.starDesc': "I really, really need your star — it's what keeps me updating!",
   'about.starButton': 'Give a star',
   'about.starCount': '{n} stars and counting',
 
@@ -390,18 +378,6 @@ const en: Dict = {
   'tool.value': 'Value',
   'tool.unusual': 'Unusual Options',
 
-  'footer.credits': 'Thanks to all contributors',
-  'footer.poweredBy': 'Powered by ❤ and Go + Nuxt',
- 'footer.repo': 'GitHub repo',
- 'footer.author': 'Author',
- 'footer.donate': 'Sponsor this project',
-  'footer.starHint': "I really, really need your star — it's what keeps me updating!",
-  'footer.donateHint': 'If Lolicount helps you, buy the author a milk tea 🧋',
-  'footer.contributors': 'Contributors',
-  'footer.tagline': 'A cute, themeable SVG visitor counter',
-  'footer.author': 'Author',
-  'footer.repo': 'GitHub repo',
-  'footer.thanks': 'Acknowledgements',
 }
 
 const jp: Dict = {
@@ -548,7 +524,7 @@ const jp: Dict = {
   'about.contributeLink': 'テーマ貢献ガイド',
   'about.starTitle': 'star をお願いします!',
   'about.starAlt': 'star をねだる看板娘',
-  'about.starDesc': 'star は深夜のバグ修正の原動力です——下の子は全然大げさじゃありません。',
+  'about.starDesc': '更新の励みに、ぜひ star をお願いします！',
   'about.starButton': 'star をあげる',
   'about.starCount': 'star 累計 {n} 件',
 
@@ -585,16 +561,6 @@ const jp: Dict = {
   'tool.value': '値 Value',
   'tool.unusual': '特殊オプション Unusual Options',
 
-  'footer.credits': '全コントリビューターに感謝',
-  'footer.poweredBy': '❤ と Go + Nuxt で駆動',
-  'footer.repo': 'GitHub リポジトリ',
-  'footer.author': '作者',
-  'footer.donate': 'プロジェクトを支援',
-  'footer.starHint': '更新の励みに、ぜひ star をお願いします！',
-  'footer.donateHint': 'Lolicount がお役に立てば、作者にミルクティーを奢ってください 🧋',
-  'footer.contributors': 'コントリビューター',
-  'footer.tagline': '萌える系スキン変更可能な SVG アクセスカウンター',
-  'footer.thanks': '謝辞',
 }
 
 export const dictionaries: Record<Locale, Dict> = { zh, en, jp }

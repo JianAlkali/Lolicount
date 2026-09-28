@@ -71,8 +71,9 @@ onMounted(() => {
       </div>
     </section>
 
-    <!-- Star plea: begging mascot + live star count -->
-    <section class="mb-12">
+    <!-- Star plea: begging mascot + live star count. Page closer — the
+         old SiteFooter was folded into this card per design. -->
+    <section class="mb-4">
       <div class="rounded-2xl bg-loli-cream p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">
         <img
           src="/images/plz.jpg"
@@ -100,7 +101,6 @@ onMounted(() => {
       </div>
     </section>
 
-    <SiteFooter />
     <BackToTop />
   </main>
 </template>
