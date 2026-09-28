@@ -32,7 +32,7 @@ widget.js（自研，原生 JS）
   ├─ fetch GET /psb/azuki        ──► Go 后端：embed.FS 直接回字节（immutable 长缓存）
   ├─ EmotePlayer 初始化（WebGL canvas）
   ├─ mainTimelineLabels 随机选一个动作播放
-  └─ fetch GET /api/count/@name  ──► Go 后端：自增计数，返回 JSON（no-store，CORS）
+  └─ fetch GET /api/count/@name  ──► Go 后端：自增计数，返回 JSON（no-cache 组合头，CORS）
        └─ 渲染计数文字（{n} 模板），默认画布正下方居中
 ```
 
@@ -43,7 +43,8 @@ widget.js（自研，原生 JS）
 - **计数语义完全复用** `counter.Buffer`：`/api/count/@name` 与 `counterHandler` 走同一
   套 `incrementOrDegrade`（name 级限流降级只读）与 `demo` / `number` 特例，只是把
   「渲染 SVG」换成「返回 JSON」。
-- **缓存铁律不变**：真实计数一律 `no-store`；模型文件是构建期嵌入的不可变字节，
+- **缓存铁律不变**：真实计数一律 `no-store, no-cache, max-age=0, must-revalidate`
+  （裸 `no-store` 挡不住 GitHub camo/Fastly 边缘缓存）；模型文件是构建期嵌入的不可变字节，
   可以 `max-age=31536000, immutable`。
 
 ## 3. 后端接口（Go / Fiber v3）
@@ -178,7 +179,7 @@ assets/psb/
 - **GitHub README：不可行。** GitHub 官方管道会"aggressively"剥离 `<script>`
   等标签（github/markup），任何脚本型嵌入都无法存活；README 场景只能用图片。
   若将来要在 README 里实现"随机动作"，可行路线是离线渲染各动作为
-  animated WebP/GIF 并作为主题帧（现有随机选帧机制 + no-store 即可每次随机）。
+  animated WebP/GIF 并作为主题帧（现有随机选帧机制 + no-cache 组合头即可每次随机）。
 - **允许 raw HTML 的 Markdown 环境：可行。** Hugo（goldmark unsafe）、
   Jekyll、Hexo 等静态站在构建期把 Markdown 里的原始 HTML 原样输出到页面，
   挂件脚本会随文档一起加载执行——把 Playground 生成的挂件代码直接贴进
