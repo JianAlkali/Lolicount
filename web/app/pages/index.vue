@@ -81,8 +81,7 @@ const howToUrl = computed(() =>
       <pre class="text-sm text-gray-500 mb-2"></pre>
     </section>
 
-    <!-- Star plea card, directly below How to use per design. -->
-    <StarPleaCard class="mb-16" />
+    
 
     <!-- Unified theme showcase: all themes in one section -->
     <section id="themes" class="mb-16 scroll-mt-20">
@@ -154,6 +153,8 @@ const howToUrl = computed(() =>
         >{{ t('themesGallery.browseThemes') }}</NuxtLink>
       </div>
     </section>
+    <!-- Star plea card, directly below How to use per design. -->
+    <StarPleaCard class="mb-16" />
 
     <BackToTop />
   </main>
