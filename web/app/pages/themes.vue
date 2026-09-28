@@ -415,6 +415,11 @@ onMounted(async () => {
               <p class="text-xs text-gray-500 truncate">
                 {{ tth.meta ? tth.meta.character : t('themesGallery.unknownMeta') }}
               </p>
+              <!-- Variation count from /api/themes (product of random layer
+                   candidates; absent for animated themes). -->
+              <p v-if="tth.variants" class="text-xs text-gray-400 truncate">
+                {{ t('themes.variants', { n: tth.variants.toLocaleString() }) }}
+              </p>
             </button>
           </div>
           <div v-else class="rounded-xl bg-loli-cream p-10 text-center text-sm text-gray-400">
