@@ -88,9 +88,9 @@ func LoadCharacterTheme(fsys fs.FS, themeDir string) (*CharacterTheme, error) {
 			continue
 		}
 		parts[l.LayerID] = render.ImageLayer{
-			Src:       decoded.Data,
-			Width:     decoded.Width,
-			Height:    decoded.Height,
+			Src:    decoded.Data,
+			Width:  decoded.Width,
+			Height: decoded.Height,
 			Transform: imgcore.Transform{
 				X:        imgcore.FixedRange(float64(l.Left)),
 				Y:        imgcore.FixedRange(float64(l.Top)),

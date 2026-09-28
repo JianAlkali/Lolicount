@@ -216,4 +216,3 @@ func TestCapacityDegradeReadOnly(t *testing.T) {
 		t.Errorf("over-cap new name = %d want 0 (read-only)", v)
 	}
 }
-

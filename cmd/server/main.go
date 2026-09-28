@@ -12,11 +12,11 @@ import (
 
 	"github.com/miaoledor/lolicount/internal/config"
 	"github.com/miaoledor/lolicount/internal/counter"
-	
+
+	"github.com/miaoledor/lolicount/internal/imgcore/composer"
 	"github.com/miaoledor/lolicount/internal/logger"
 	"github.com/miaoledor/lolicount/internal/server"
 	"github.com/miaoledor/lolicount/internal/store"
-	"github.com/miaoledor/lolicount/internal/imgcore/composer"
 )
 
 func main() {

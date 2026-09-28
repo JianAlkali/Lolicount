@@ -15,8 +15,8 @@ type ImageOption struct {
 // self-describing layer: the category name and candidates are data, not
 // hardcoded ranges.
 type RandomPickLayer struct {
-	Category  string          // e.g. "brow", "eye", "mouth" (for debugging/metadata)
-	Options   []ImageOption   // candidate images
+	Category  string            // e.g. "brow", "eye", "mouth" (for debugging/metadata)
+	Options   []ImageOption     // candidate images
 	Transform imgcore.Transform // transform applied to the whole layer
 	Z         int
 	IsFixed   bool

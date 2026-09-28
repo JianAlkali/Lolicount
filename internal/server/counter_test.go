@@ -230,8 +230,6 @@ func sub(s, marker string) string {
 	return s[i:end]
 }
 
-
-
 // TestCounterTextTemplate verifies that the ?text= parameter replaces
 // {n} with the count number and preserves surrounding characters.
 func TestCounterTextTemplate(t *testing.T) {

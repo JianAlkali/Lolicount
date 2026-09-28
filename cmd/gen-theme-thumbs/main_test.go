@@ -28,10 +28,10 @@ func testTheme(t *testing.T, name string) *theme.Theme {
 		BgH:    10,
 		Layers: []imgcore.Layer{
 			&render.ImageLayer{
-				Src:     "[image omitted]" + onePixelGIF,
-				Width:   10,
-				Height:  10,
-				Z:       0,
+				Src:    "[image omitted]" + onePixelGIF,
+				Width:  10,
+				Height: 10,
+				Z:      0,
 			},
 		},
 	}
