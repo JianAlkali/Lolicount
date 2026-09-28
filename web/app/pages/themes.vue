@@ -63,6 +63,34 @@ const resultCount = computed(() => filteredThemes.value.length)
 const selectedTheme = ref('')
 const previewKey = ref(0)
 
+// The selected theme lives in the URL as ?theme=<name> so a refresh or a
+// shared link restores the exact selection. Written on every user-driven
+// selection (replace, not push — no history spam), read after the theme
+// list loads in onMounted and in the query watcher below (Nuxt reuses
+// this component on query-only navigation, so onMounted does not rerun).
+const route = useRoute()
+const router = useRouter()
+
+// Single writer for selection state: preview + playground stay in sync.
+// Does not touch the URL — the plain default selection keeps a clean URL.
+const applyThemeSelection = (name: string) => {
+  selectedTheme.value = name
+  state.theme = name
+}
+
+// Soft-navigation support: picking up ?theme= when the query changes
+// while the page stays mounted. Skips unknown names; the writer path
+// (selectTheme) is a no-op here because the name already matches.
+watch(
+  () => route.query.theme,
+  (q) => {
+    const name = typeof q === 'string' ? q : ''
+    if (!name || name === selectedTheme.value) return
+    if (!themes.value.some((tth) => tth.name === name)) return
+    applyThemeSelection(name)
+  },
+)
+
 const selectedAnimated = computed(() =>
   themes.value.some((tth) => tth.name === selectedTheme.value && tth.animated),
 )
@@ -75,8 +103,8 @@ const selectedKind = computed(() =>
 )
 
 const selectTheme = (name: string) => {
-  selectedTheme.value = name
-  state.theme = name
+  applyThemeSelection(name)
+  router.replace({ query: { ...route.query, theme: name } })
 }
 
 const previewUrl = computed(() => {
@@ -119,7 +147,7 @@ const state = reactive<ParamState>({
 const onUpdate = (patch: Partial<ParamState>) => {
   Object.assign(state, patch)
   if (patch.theme && patch.theme !== selectedTheme.value) {
-    selectedTheme.value = patch.theme
+    selectTheme(patch.theme)
     previewKey.value++
   }
 }
@@ -170,9 +198,15 @@ const generate = (e: MouseEvent) => {
 onMounted(async () => {
   themes.value = await fetchThemes()
   fthemes.value = await fetchFThemes()
-  const lianRen = themes.value.find((tth) => tth.name === 'lian-ren')
-  selectedTheme.value = lianRen ? lianRen.name : (themes.value[0]?.name ?? '')
-  state.theme = selectedTheme.value
+  // Restore ?theme= from the URL; fall back to the default selection for
+  // plain visits or unknown names (URL stays clean in the fallback).
+  const fromQuery = typeof route.query.theme === 'string' ? route.query.theme : ''
+  if (fromQuery && themes.value.some((tth) => tth.name === fromQuery)) {
+    applyThemeSelection(fromQuery)
+  } else {
+    const lianRen = themes.value.find((tth) => tth.name === 'lian-ren')
+    applyThemeSelection(lianRen ? lianRen.name : (themes.value[0]?.name ?? ''))
+  }
   await fetchConfig()
 })
 </script>
