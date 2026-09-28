@@ -71,11 +71,6 @@ onMounted(() => {
       </div>
     </section>
 
-    <!-- Live theme showcase -->
-    <section class="mb-12">
-      <NoticeBoard />
-    </section>
-
     <!-- Star plea: begging mascot + live star count -->
     <section class="mb-12">
       <div class="rounded-2xl bg-loli-cream p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6">

@@ -161,10 +161,6 @@ const zh: Dict = {
   'about.starDesc': '每一个 star 都是作者深夜修 bug 的动力——真的会哭出来的那种,看图就知道了。',
   'about.starButton': '给个 star',
   'about.starCount': '已有 {n} 个 star',
-  'notice.title': '主题动态展示',
-  'notice.desc': '所有主题实时渲染,自动翻页,鼠标悬停暂停。',
-  'notice.prev': '上一张',
-  'notice.next': '下一张',
 
   'embed.title': '嵌入方式',
   'embed.svg': 'SVG 地址',
@@ -360,10 +356,6 @@ const en: Dict = {
   'about.starDesc': 'Every star fuels the late-night bug fixing — the mascot is really not exaggerating, see for yourself.',
   'about.starButton': 'Give a star',
   'about.starCount': '{n} stars and counting',
-  'notice.title': 'Live Theme Showcase',
-  'notice.desc': 'Every theme rendered live, auto-paging, pause on hover.',
-  'notice.prev': 'Previous',
-  'notice.next': 'Next',
 
   'embed.title': 'Embed Formats',
   'embed.svg': 'SVG address',
@@ -559,10 +551,6 @@ const jp: Dict = {
   'about.starDesc': 'star は深夜のバグ修正の原動力です——下の子は全然大げさじゃありません。',
   'about.starButton': 'star をあげる',
   'about.starCount': 'star 累計 {n} 件',
-  'notice.title': 'テーマ動的展示',
-  'notice.desc': '全テーマをリアルタイム描画、自動ページ送り、ホバーで一時停止。',
-  'notice.prev': '前へ',
-  'notice.next': '次へ',
 
   'embed.title': '埋め込み方法',
   'embed.svg': 'SVG アドレス',
