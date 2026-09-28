@@ -347,15 +347,24 @@ node scripts/gen-themes-json.js       # 重新生成 themes.json(更新扩展名
 
 ## 图片无损优化
 
-内置主题图经 `embed.FS` 打包进二进制,PNG 体积直接影响最终产物大小。
-`scripts/optimize-images.mjs` 封装 [oxipng](https://github.com/shssoichiro/oxipng)
-(预编译二进制,经 `oxipng-bin` npm 包分发,无需系统依赖),对
-`assets/theme/**/*.png` 做**严格无损**压缩
-——只重写 DEFLATE 压缩流与 PNG filter 策略,不改动任何像素,适合对已优化的
-PNG 再挤出 10–20% 体积。
+仓库内的 PNG 体积影响二进制产物大小(SVG 站点资源)与仓库克隆体积(文档图)。
+`scripts/optimize-images.mjs` 封装 [oxipng](https://github.com/shssoichiro/oxipng),
+对以下目录的 PNG 做**严格无损**压缩——只重写 DEFLATE 压缩流与 PNG filter 策略,
+不改动任何像素:
+
+- `assets/theme/**/*.png`(内置主题,经 `embed.FS` 打包进二进制;当前已全部转为 WebP,留作新增 PNG 帧时兜底)
+- `assets/live2d/**/*.png`(Live2D 模型纹理,打包进二进制)
+- `web/public/images/**/*.png`(SSG 静态资源)
+- `docs/png/*.png`(README/文档配图,影响仓库体积)
+
+oxipng 优先使用 `oxipng-bin` 自带的预编译二进制;若与当前机器架构不兼容
+(如 x86_64 二进制跑在 arm64 上),自动回退到 PATH 里的系统安装,并自动兼容
+9.0 前后的 `--pretend`/`--dry-run` 参数名。
 
 > 不要用 sharp / imagemin 的有损减色(`palette: true`)优化主题图:会改变
 > 像素,破坏主题视觉一致性。oxipng 是唯一保证像素逐字节不变的无损方案。
+> 内置主题图已全部是有损 WebP(convert-webp.mjs 转换),WebP 没有再无损
+> 压缩的手段,不在本脚本范围内。
 
 ### 两个命令
 
