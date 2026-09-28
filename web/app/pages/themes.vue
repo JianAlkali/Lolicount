@@ -129,6 +129,33 @@ const previewUrl = computed(() => {
   return key > 0 ? `${base}&_=${key}` : base
 })
 
+// Download the EXACT frame currently displayed. The preview URL renders a
+// fresh random frame on every fetch (no-store + per-request PRNG seed), so
+// a plain <a download> would save a different frame — instead the loaded
+// <img> is rasterized through a same-origin canvas and exported as a
+// full-resolution PNG. Static themes only: animated previews are WebGL
+// canvases with no per-frame image endpoint.
+const previewImgEl = ref<HTMLImageElement | null>(null)
+const downloadFrame = () => {
+  const img = previewImgEl.value
+  if (!img || !img.naturalWidth || !img.naturalHeight) return
+  const canvas = document.createElement('canvas')
+  canvas.width = img.naturalWidth
+  canvas.height = img.naturalHeight
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.drawImage(img, 0, 0)
+  canvas.toBlob((blob) => {
+    if (!blob) return
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${selectedTheme.value}-frame.png`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, 'image/png')
+}
+
 const reloadPreview = () => {
   previewKey.value++
 }
@@ -321,6 +348,7 @@ onMounted(async () => {
             />
             <img
               v-else
+              ref="previewImgEl"
               :src="previewUrl"
               :alt="selectedTheme"
               class="max-h-72 object-contain"
@@ -328,6 +356,15 @@ onMounted(async () => {
           </div>
           <div v-else class="h-40 flex items-center justify-center text-sm text-gray-400">
             {{ t('loli.loading') }}
+          </div>
+          <div v-if="selectedTheme && !selectedAnimated" class="mt-3 flex justify-center">
+            <button
+              type="button"
+              :class="cn(
+                'inline-flex items-center gap-1.5 border-2 border-loli-pink text-loli-pink text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-loli-pink hover:text-white transition'
+              )"
+              @click="downloadFrame"
+            >↓ {{ t('themesGallery.downloadFrame') }}</button>
           </div>
           <div v-if="selectedMeta" class="mt-3 text-xs text-gray-500 space-y-1">
             <p>{{ t('themesGallery.gameLabel') }}: {{ gameLabel(selectedMeta.gameKey) }}</p>
