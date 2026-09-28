@@ -29,7 +29,7 @@ PSB（Packaged Struct Binary）是 M2 公司 **E-mote 引擎**的角色动画格
   ▼
 widget.js（自研，原生 JS）
   ├─ 动态注入 FreeMoteDriver.js + emoteplayer.js（同源，vendor 自 FreeMote-SDK）
-  ├─ fetch GET /psb/azuki        ──► Go 后端：embed.FS 直接回字节（immutable 长缓存）
+  ├─ fetch GET /psb/azuki        ──► Go 后端：从磁盘 PSB_DIR 流式回字节（immutable 长缓存）
   ├─ EmotePlayer 初始化（WebGL canvas）
   ├─ mainTimelineLabels 随机选一个动作播放
   └─ fetch GET /api/count/@name  ──► Go 后端：自增计数，返回 JSON（no-cache 组合头，CORS）
@@ -76,13 +76,16 @@ FreeMoteViewer / Emote_Widget 等工具里使用。同样走名称白名单,
 
 ### 3.4 `GET /psb/:model`
 
-返回 `assets/psb/<model>/` 下模型文件的字节（`model.psb.gz` 优先，其次 `model.psb`）。
-gzip 存储时直接以 `Content-Encoding: gzip` 下发压缩字节（PSB 主要是未压缩 RGBA 纹理，
-gzip 约 8 倍压缩率），浏览器网络层透明解压，挂件驱动收到的仍是 pure PSB 字节：
+流式返回 `PSB_DIR`（默认 `assets/psb`）下 `<model>/` 目录里模型文件的字节
+（`model.psb.gz` 优先，其次 `model.psb`）。模型**不打包进二进制**、不驻留
+进程内存——每次请求直接从磁盘流式读取（`SendStream`），用完即走，只有真正
+被请求的模型才会经历磁盘读。gzip 存储时直接以 `Content-Encoding: gzip`
+下发压缩字节（PSB 主要是未压缩 RGBA 纹理，gzip 约 8 倍压缩率），浏览器网络层
+透明解压，挂件驱动收到的仍是 pure PSB 字节：
 
 - `Content-Type: application/octet-stream`
-- `Cache-Control: public, max-age=31536000, immutable`（内容随构建固定）
-- 模型名做白名单校验（`^[a-z0-9-]+$`，且必须存在于嵌入目录），防路径穿越；
+- `Cache-Control: public, max-age=31536000, immutable`（同一模型目录内容视为固定）
+- 模型名做白名单校验（`^[a-z0-9-]+$`，且必须存在于模型目录），防路径穿越；
   不存在返回 404。
 
 ### 3.4 路由注册顺序
@@ -104,9 +107,10 @@ assets/psb/
     model.psb
 ```
 
-`assets/embed.go` 增加 `//go:embed all:psb`。仓库自带两个示例模型（`azuki`、
-`vanilla`）；新增模型放入对应目录后重启即被 `embed.FS` 打包，没放则模型列表为空、
-前端空态。**请只提交有权分发/展示的模型素材**——模型文件体积大（数 MB～数十 MB）
+模型目录由 `PSB_DIR`（默认 `assets/psb`,相对工作目录）指定,**不经
+`go:embed` 打包**。新增模型放入对应目录后重启(或直接热放入,列表每次请求
+实时扫目录)即可被列出;目录缺失或为空则模型列表为空、前端空态,不影响启动。
+**请只提交有权分发/展示的模型素材**——模型文件体积大（数 MB～数十 MB）
 且多为游戏提取物，版权素材入库前请自行评估。
 
 ### 4.2 模型从哪来 / 如何转换（离线一次性流程）

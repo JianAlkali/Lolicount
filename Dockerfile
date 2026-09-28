@@ -37,10 +37,14 @@ FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
 COPY --from=backend /out/lolicount /app/lolicount
+# PSB emote models are NOT embedded in the binary — they are streamed from
+# disk per request (PSB_DIR), so the runtime image carries the directory.
+COPY --from=backend /src/assets/psb /app/assets/psb
 RUN mkdir -p /app/data
 VOLUME ["/app/data"]
 EXPOSE 9721
 ENV HOST=0.0.0.0 \
     PORT=9721 \
+    PSB_DIR=/app/assets/psb \
     DB_PATH=/app/data/count.db
 ENTRYPOINT ["/app/lolicount"]

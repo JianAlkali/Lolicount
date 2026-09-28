@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"io/fs"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -59,10 +60,15 @@ func New(cfg *config.Config, logger zerolog.Logger, themes composer.ThemeRegistr
 		ipLimiter:   ratelimit.NewIPLimiter(cfg.RateLimitIPPerSec, cfg.RateLimitIPPerMin),
 		nameLimiter: ratelimit.NewNameLimiter(cfg.RateLimitNamePerSec),
 	}
-	// Emote models live under assets/psb/ (docs/emote-widget.md). A sub
-	// failure leaves psbFS nil, which the handlers treat as "no models".
-	if psbRoot, err := fs.Sub(assets.FS, "psb"); err == nil {
-		s.psbFS = psbRoot
+	// Emote (PSB) models are served from the on-disk PSB_DIR (default
+	// assets/psb) on demand — never embedded in the binary and never held
+	// in process memory: each request streams the file straight from disk.
+	// A missing directory leaves psbFS nil, which the handlers treat as
+	// "no models" (empty list, 404 on fetch) instead of failing startup.
+	if st, err := os.Stat(cfg.PSBDir); err == nil && st.IsDir() {
+		s.psbFS = os.DirFS(cfg.PSBDir)
+	} else {
+		s.logger.Warn().Str("psb_dir", cfg.PSBDir).Msg("psb dir missing, emote widget endpoints disabled")
 	}
 	// Spine dynamic-illustration models live under assets/spine/. Same
 	// convention: a missing tree leaves spineFS nil => "no models".
