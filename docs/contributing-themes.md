@@ -248,7 +248,7 @@ go run ./cmd/gen-theme-thumbs
 - `cmd/check-theme`:校验目录名、帧完整性、格式与尺寸
 - `scripts/validate-theme-meta.js`:校验 `meta.json` schema
 - `scripts/gen-themes-json.js`:重新生成 `assets/themes.json`,提交前确认变更只包含预期主题
-- `go run ./cmd/gen-theme-thumbs`:重新生成主题画廊静态缩略图(`web/public/images/theme-thumbs/*.svg`);新增/删除主题后必须重跑,否则画廊卡片图会缺失或残留孤儿文件
+- `go run ./cmd/gen-theme-thumbs`:重新生成主题画廊静态缩略图源(`web/public/images/theme-thumbs/*.svg`);新增/删除主题后必须重跑,否则画廊卡片图会缺失或残留孤儿文件。生成后接着跑 `node scripts/gen-theme-thumbs-webp.mjs` 把 SVG 压缩成卡片尺寸的 WebP(前端引用的是 `.webp`,转换成功后 SVG 源会被删除,仓库不保留)
 
 提交主题前建议一并跑 `pnpm convert:webp:check` 确认图片已转为 WebP
 (详见下文「图片转 WebP」),以及 `pnpm optimize:images:check` 确认保留的
