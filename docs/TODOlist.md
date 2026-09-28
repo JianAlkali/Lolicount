@@ -68,7 +68,8 @@ agent铁律-不要修改该文件的任何描述内容,至允许修改当前任�
 - [x] 接入 `go-playground/validator` 校验路由参数
 - [x] 实现 CORS 中间件(仅 `/api/*`)
 - [x] 设置 `Cache-Control: no-store`(非 demo),`demo` 长缓存(铁律 1)
-- [ ] AGENTS.md 铁律1 与 `docs/projectDesign.md` 缓存契约仍写裸 `no-store`;实际已改为 no-cache 组合头(`no-store, no-cache, max-age=0, must-revalidate`,GitHub camo/Fastly 边缘无视裸 no-store)。两文件禁止修改,待用户同步
+- [x] AGENTS.md 铁律1 与缓存表同步为 no-cache 组合头(`no-store, no-cache, max-age=0, must-revalidate`,GitHub camo/Fastly 边缘无视裸 no-store;经用户一次性授权修改)
+- [ ] `docs/projectDesign.md` 缓存契约仍写裸 `no-store`(文件禁止修改,待用户同步为 no-cache 组合头)
 - [x] 实现 `server/params.go`:`QueryParams` 结构体 + validator 标签 + `applyDefaults()`
 - [x] 验证:压测超限返回 429 / 降级;参数非法返回 400
 
