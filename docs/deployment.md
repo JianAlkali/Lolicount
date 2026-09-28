@@ -155,6 +155,11 @@ go build -o lolicount.exe ./cmd/server
 
 访问 `http://localhost:9721/@my-counter`。
 
+> **内存要求**:内置主题图在启动时全量预加载为 base64 常驻堆,实测稳定态
+> RSS ≈ 1.1 GiB、启动峰值 ≈ 1.5 GiB(随主题体积线性增长)。生产环境建议
+> 预留 **≥ 2 GiB 内存**;详细构成与估算方法见
+> [架构文档「图片内存策略与占用」](./architecture.md#图片内存策略与占用)。
+
 ### 交叉编译
 
 `modernc.org/sqlite` 是纯 Go,免 CGO,因此可交叉编译:
