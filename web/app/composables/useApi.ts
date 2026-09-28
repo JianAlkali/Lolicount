@@ -78,18 +78,12 @@ export const useApi = () => {
     if (params.rx !== undefined) q.set('rx', String(params.rx))
     if (params.ry !== undefined) q.set('ry', String(params.ry))
     if (params.text) q.set('text', params.text)
-      const qs = q.toString()
+    const qs = q.toString()
     // Prefer the explicit origin (public domain) when provided and non-empty;
     // otherwise use the same-origin apiBase for live preview.
     const root = origin && origin.length > 0 ? origin : base
     return `${root}/@${encodeURIComponent(params.name)}${qs ? `?${qs}` : ''}`
   }
 
-  const buildEmbedFormats = (url: string, name: string) => ({
-    svg: url,
-    img: `<img src="${url}" alt="${name}" />`,
-    markdown: `![${name}](${url})`,
-  })
-
-  return { fetchThemes, fetchFThemes, fetchConfig, buildCounterUrl, buildEmbedFormats, publicBase }
+  return { fetchThemes, fetchFThemes, fetchConfig, buildCounterUrl, publicBase }
 }
