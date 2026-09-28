@@ -88,7 +88,8 @@ func TestNameLimitDegradesReadOnly(t *testing.T) {
 	}
 }
 
-// TestDemoLongCache: demo gets max-age=31536000, real counter no-store.
+// TestDemoLongCache: demo gets max-age=31536000, real counter the
+// realCountCacheControl no-cache combo.
 func TestDemoLongCache(t *testing.T) {
 	s := m4Server(t, 1000, 100000, 1000)
 	demo := httptest.NewRequest(http.MethodGet, "/@demo?theme=lian", nil)
@@ -98,8 +99,8 @@ func TestDemoLongCache(t *testing.T) {
 	}
 	real := httptest.NewRequest(http.MethodGet, "/@realcache?theme=lian", nil)
 	rresp, _ := s.app.Test(real)
-	if cc := rresp.Header.Get("Cache-Control"); cc != "no-store" {
-		t.Errorf("real counter Cache-Control: %q want no-store", cc)
+	if cc := rresp.Header.Get("Cache-Control"); cc != realCountCacheControl {
+		t.Errorf("real counter Cache-Control: %q want %q", cc, realCountCacheControl)
 	}
 }
 

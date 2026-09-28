@@ -3,7 +3,7 @@
 // The theme is the background (layer 0); the count is shown by the
 // overlaid <text> layer. All themes go through the same unified compose
 // path — no card/character branching. Name-level rate limiting degrades
-// to read-only (Iron Rule 3); Cache-Control no-store for real counters
+// to read-only (Iron Rule 3); real counters use realCountCacheControl
 // (Iron Rule 1); demo is long cache.
 package server
 
@@ -23,6 +23,18 @@ import (
 // 0123456789 and never stored) and is also the text used by
 // cmd/gen-theme-thumbs when pre-rendering gallery thumbnails.
 const DemoText = "0123456789"
+
+// realCountCacheControl is the Cache-Control value for every response
+// carrying a real, per-view count (Iron Rule 1). Bare no-store is NOT
+// enough: GitHub proxies README images through camo + Fastly, and the
+// Fastly edge caches the object anyway (observed x-cache MISS → HIT
+// within one second) while passing no-store through to the browser —
+// so the count freezes until the edge TTL expires. The edge only
+// revalidates per request when the response carries no-cache /
+// max-age=0; must-revalidate and no-store keep browsers from serving
+// or persisting stale bodies. This combo mirrors komarev/ghpvc, which
+// is field-proven on the exact same GitHub pipeline.
+const realCountCacheControl = "no-store, no-cache, max-age=0, must-revalidate"
 
 // counterHandler renders GET /@:name (and the /get/@:name alias).
 func (s *Server) counterHandler(c fiber.Ctx) error {
@@ -94,7 +106,7 @@ func (s *Server) counterHandler(c fiber.Ctx) error {
 	if name == "demo" && (q.Number > 0 || !s.themeIsMultiFrame(entry.Name)) {
 		c.Set("Cache-Control", "public, max-age=31536000")
 	} else {
-		c.Set("Cache-Control", "no-store")
+		c.Set("Cache-Control", realCountCacheControl)
 	}
 	return c.Status(fiber.StatusOK).SendString(svg)
 }

@@ -97,8 +97,8 @@ func TestCountAPIHeadersAndCORS(t *testing.T) {
 	s := newCountTestServer(t)
 	_, resp := getCount(t, s, "/api/count/@cors-test", "https://example.com")
 
-	if cc := resp.Header.Get("Cache-Control"); cc != "no-store" {
-		t.Errorf("Cache-Control: got %q want no-store", cc)
+	if cc := resp.Header.Get("Cache-Control"); cc != realCountCacheControl {
+		t.Errorf("Cache-Control: got %q want %q", cc, realCountCacheControl)
 	}
 	// The /api CORS middleware reflects the caller origin so the emote
 	// widget can fetch the count from third-party pages.

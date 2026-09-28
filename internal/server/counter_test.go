@@ -149,6 +149,27 @@ func TestCounterGetAlias(t *testing.T) {
 	}
 }
 
+// TestCounterRealNameCacheControl pins the cache header for the real
+// per-view counting path: every real-count response must carry the
+// full no-cache combo, not just bare no-store — GitHub's Fastly edge
+// ignores bare no-store for its own caching decision (observed
+// MISS → HIT within one second) and keeps serving the frozen image
+// until its TTL expires, so the README count stops ticking.
+func TestCounterRealNameCacheControl(t *testing.T) {
+	s := newCounterServer(t)
+	req := httptest.NewRequest(http.MethodGet, "/@real-name-cc?theme=lian", nil)
+	resp, err := s.app.Test(req)
+	if err != nil {
+		t.Fatalf("app.Test: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status: %d", resp.StatusCode)
+	}
+	if cc := resp.Header.Get("Cache-Control"); cc != realCountCacheControl {
+		t.Errorf("real name Cache-Control: got %q want %q", cc, realCountCacheControl)
+	}
+}
+
 func TestCounterUnknownTheme400(t *testing.T) {
 	s := newCounterServer(t)
 	req := httptest.NewRequest(http.MethodGet, "/@demo?theme=nonexistent", nil)

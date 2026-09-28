@@ -6,13 +6,19 @@
 
 ### 计数为什么不增长 / 卡在同一个数字?
 
-最常见原因:计数器 SVG 被某层缓存加了 `max-age`。Lolicount 对非 `demo` 的
-计数 SVG 一律返回 `Cache-Control: no-store`(铁律 1),但 GitHub 图片代理、
-CDN 或浏览器扩展可能仍缓存。排查:
+最常见原因:计数器 SVG 被某层缓存命中后不再回源。Lolicount 对非 `demo` 的
+计数 SVG 返回 `Cache-Control: no-store, no-cache, max-age=0, must-revalidate`
+(铁律 1)。注意只有裸 `no-store` 是不够的:GitHub 的图片代理链路
+(camo + Fastly 边缘)会无视裸 `no-store` 直接在边缘缓存对象(x-cache 会从
+MISS 变 HIT),但会遵守 `no-cache` / `max-age=0` 强制回源。排查:
 
 - 确认请求 URL 不是 `demo`(demo 固定返回 `0123456789`,不计数)。
-- 直接 `curl -I https://lolicount.top/@your-name` 检查 `Cache-Control` 是否为 `no-store`。
-- 若走了自有 CDN,确认其未对 `image/svg+xml` 强制加长缓存。
+- 直接 `curl -sI https://lolicount.top/@your-name` 检查 `Cache-Control`
+  是否包含 `no-store, no-cache, max-age=0`。
+- 在 GitHub README 上观察边缘缓存:`curl -sI <camo 图片地址>` 看响应里的
+  `x-cache` 字段,`HIT` 表示该次请求未回源(计数不增长),`MISS` 表示已回源。
+- 若走了自有 CDN,确认其未对 `image/svg+xml` 强制加长缓存,且未剥离
+  `no-cache` / `max-age=0` 指令。
 
 ### 同一个 name 被刷量怎么办?
 
