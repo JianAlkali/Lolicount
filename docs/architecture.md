@@ -39,7 +39,8 @@ Nuxt 4 SSG,主题图与前端 dist 通过 `embed.FS` 打包进同一个 Go 二�
 3. `counter.Buffer.Incr` 在内存 map 自增;同时 `nameLimiter` 做 name 级
    限流,超限则**降级只读**(返回当前值但不 +1,铁律 3)。
 4. `composer.Compose` 合成所有图层(底图 + 计数文字)
-   生成 SVG,设 `Cache-Control: no-store`(铁律 1),返回 `image/svg+xml`。
+   生成 SVG,设 `Cache-Control: no-store, no-cache, max-age=0, must-revalidate`
+   (铁律 1),返回 `image/svg+xml`。
 6. `counter.Buffer` 内的 `time.Ticker` 按 `DB_INTERVAL` 秒触发 `flush()`,
    批量 upsert 到 SQLite。
 
@@ -107,13 +108,14 @@ upsert 同一 name 不会产生重复行。业务从不按 `num` 查询,无需�
 
 | 资源 | Cache-Control | 理由 |
 |---|---|---|
-| 计数器 SVG(非 demo) | `no-store` | 计数实时,GitHub 代理场景必需 |
+| 计数器 SVG(非 demo) | `no-store, no-cache, max-age=0, must-revalidate` | 计数实时;GitHub 的 camo/Fastly 边缘无视裸 `no-store`,必须靠 `no-cache`/`max-age=0` 强制回源 |
 | `demo` 主题(单帧/`number`) | `max-age=31536000` | 固定值且确定,长缓存 |
-| `demo` 主题(多帧) | `no-store` | 每次随机选帧,不可长缓存 |
+| `demo` 主题(多帧) | `no-store, no-cache, max-age=0, must-revalidate` | 每次随机选帧,不可长缓存 |
 | `/api/*` 列表 | `public, max-age=60` | 短缓存,平衡新鲜度与压力 |
 
 GitHub 图片代理会缓存,任何给真实计数 SVG 加 `max-age` 的"优化"都会
-让计数永久卡死。
+让计数永久卡死;裸 `no-store` 也挡不住其边缘缓存(实测 MISS→HIT),
+真实计数必须带完整的 no-cache 组合头。
 
 ## 上传通道安全(铁律 4)
 

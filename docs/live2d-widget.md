@@ -277,7 +277,7 @@ README、Markdown 预览等 `<img>`-only 场景——那些场景没有 WebGL，
 
 | 资源 | Cache-Control | 理由 |
 |---|---|---|
-| `/api/count/@name`（真实计数） | `no-store` | 铁律 1：真实计数绝不缓存 |
+| `/api/count/@name`（真实计数） | `no-store, no-cache, max-age=0, must-revalidate` | 铁律 1：真实计数绝不缓存 |
 | `/api/live2d/models` | `public, max-age=60` | 短缓存，对齐其他 `/api` 列表 |
 | `/live2d/models/:name/:file` | `public, max-age=31536000, immutable` | 构建期嵌入，字节不可变 |
 

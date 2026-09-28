@@ -58,7 +58,7 @@ widget.js（自研，原生 JS）
 | 真实 name | `incrementOrDegrade`（自增；name 级限流超限降级只读，不 429） |
 | `name=demo` | 不自增，返回固定 `0123456789`（与 SVG 路径特例对齐） |
 | `number>0` | 不自增，直接返回该值 |
-| 响应 | `{"name":"...","num":123}`，`Cache-Control: no-store` |
+| 响应 | `{"name":"...","num":123}`，`Cache-Control: no-store, no-cache, max-age=0, must-revalidate` |
 
 ### 3.2 `GET /api/psb/models`
 
@@ -189,8 +189,8 @@ assets/psb/
 
 | 资源 | Cache-Control | 理由 |
 |---|---|---|
-| `/api/count/@name`（真实计数） | `no-store` | 铁律 1：真实计数绝不缓存 |
-| `/api/count/@demo` 等 | `no-store` | 与 SVG 路径 demo 特例行为一致（不引入长缓存分支） |
+| `/api/count/@name`（真实计数） | `no-store, no-cache, max-age=0, must-revalidate` | 铁律 1：真实计数绝不缓存 |
+| `/api/count/@demo` 等 | `no-store, no-cache, max-age=0, must-revalidate` | 与 SVG 路径 demo 特例行为一致（不引入长缓存分支） |
 | `/api/psb/models` | `public, max-age=60` | 短缓存，对齐其他 `/api` 列表 |
 | `/psb/:model` | `public, max-age=31536000, immutable` | 构建期嵌入，字节不可变 |
 
