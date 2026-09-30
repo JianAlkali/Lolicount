@@ -156,6 +156,14 @@ const selectTheme = (name: string) => {
   router.replace({ query: { ...route.query, theme: name } })
 }
 
+// True while the static preview <img> is fetching a fresh SVG. The
+// overlay blocks reload clicks and disables the frame download, so a
+// slow no-store fetch can't hand the user the previous theme's frame.
+const previewLoading = ref(true)
+watch([selectedTheme, previewKey], () => {
+  if (!selectedAnimated.value) previewLoading.value = true
+})
+
 const previewUrl = computed(() => {
   if (!selectedTheme.value || selectedAnimated.value) return ''
   const base = buildCounterUrl({
@@ -187,6 +195,7 @@ const previewImgEl = ref<HTMLImageElement | null>(null)
 const downloadFrame = () => {
   const img = previewImgEl.value
   if (!img || !img.naturalWidth || !img.naturalHeight) return
+  if (previewLoading.value) return
   try {
     const long = Math.max(img.naturalWidth, img.naturalHeight)
     const factor = Math.min(5, Math.max(2, Math.ceil(1600 / long)))
@@ -216,6 +225,9 @@ const downloadFrame = () => {
 }
 
 const reloadPreview = () => {
+  // Blocked while a fetch is in flight: the click would only queue
+  // another random frame behind the pending one.
+  if (previewLoading.value) return
   previewKey.value++
 }
 
@@ -298,6 +310,9 @@ const generate = (e: MouseEvent) => {
 }
 
 onMounted(async () => {
+  // SSG may finish the preview fetch before hydration attaches @load —
+  // clear the spinner for an already-complete image.
+  if (previewImgEl.value?.complete) previewLoading.value = false
   themes.value = await fetchThemes()
   fthemes.value = await fetchFThemes()
   // Hot list is non-critical: an API hiccup just hides the hot group.
@@ -424,7 +439,19 @@ onMounted(async () => {
               :alt="selectedTheme"
               crossorigin="anonymous"
               class="max-h-72 object-contain"
+              @load="previewLoading = false"
+              @error="previewLoading = false"
             />
+            <!-- Loading overlay: blocks the click-to-reload hit area and
+                 signals that a fresh no-store render is on its way. -->
+            <div
+              v-if="previewLoading && !selectedAnimated"
+              class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white/70 rounded-lg"
+              aria-live="polite"
+            >
+              <span class="h-6 w-6 animate-spin rounded-full border-2 border-loli-pink border-t-transparent" aria-hidden="true" />
+              <span class="text-xs text-gray-500">{{ t('themesGallery.previewLoading') }}</span>
+            </div>
           </div>
           <div v-else class="h-40 flex items-center justify-center text-sm text-gray-400">
             {{ t('loli.loading') }}
@@ -432,8 +459,9 @@ onMounted(async () => {
           <div v-if="selectedTheme && !selectedAnimated" class="mt-3 flex justify-center">
             <button
               type="button"
+              :disabled="previewLoading"
               :class="cn(
-                'inline-flex items-center gap-1.5 border-2 border-loli-pink text-loli-pink text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-loli-pink hover:text-white transition'
+                'inline-flex items-center gap-1.5 border-2 border-loli-pink text-loli-pink text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-loli-pink hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed'
               )"
               @click="downloadFrame"
             >↓ {{ t('themesGallery.downloadFrame') }}</button>
