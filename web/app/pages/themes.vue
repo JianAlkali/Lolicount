@@ -171,27 +171,38 @@ const previewUrl = computed(() => {
 // Download the EXACT frame currently displayed. The preview URL renders a
 // fresh random frame on every fetch (no-store + per-request PRNG seed), so
 // a plain <a download> would save a different frame — instead the loaded
-// <img> is rasterized through a canvas and exported as a full-resolution
-// PNG. Static themes only: animated previews are WebGL canvases with no
-// per-frame image endpoint.
+// <img> is rasterized through a canvas and exported as a PNG. Static themes
+// only: animated previews are WebGL canvases with no per-frame image
+// endpoint.
+//
+// Supersampling: the SVG's intrinsic size is the ~400px-class display
+// size, but it embeds the theme art at full source resolution (up to
+// ~3500px). Drawing the SVG to a larger canvas re-rasterizes the layout
+// at the target size and samples the embedded raster at its native
+// detail, so the export lands near the source resolution instead of the
+// display resolution. Factor targets a ~1600px long edge, clamped 2x..5x
+// to bound canvas memory; small-source frame themes upscale noisily-free
+// (vector text/shapes stay crisp, rasters go no further than they have).
 const previewImgEl = ref<HTMLImageElement | null>(null)
 const downloadFrame = () => {
   const img = previewImgEl.value
   if (!img || !img.naturalWidth || !img.naturalHeight) return
   try {
+    const long = Math.max(img.naturalWidth, img.naturalHeight)
+    const factor = Math.min(5, Math.max(2, Math.ceil(1600 / long)))
     const canvas = document.createElement('canvas')
-    canvas.width = img.naturalWidth
-    canvas.height = img.naturalHeight
+    canvas.width = img.naturalWidth * factor
+    canvas.height = img.naturalHeight * factor
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    ctx.drawImage(img, 0, 0)
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
     // Synchronous toDataURL keeps the download inside the user-gesture
     // task — Safari blocks downloads from async callbacks (toBlob) after
     // the gesture window closes.
     const url = canvas.toDataURL('image/png')
     const a = document.createElement('a')
     a.href = url
-    a.download = `${selectedTheme.value}-frame.png`
+    a.download = `${selectedTheme.value}-frame-${canvas.height}px.png`
     // Safari ignores clicks on detached anchors — mount before clicking.
     document.body.appendChild(a)
     a.click()
