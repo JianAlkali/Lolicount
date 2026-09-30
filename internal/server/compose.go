@@ -129,14 +129,25 @@ func scaleOrOne(scale float64) float64 {
 
 // compose renders any theme (card or character) via the unified
 // composer. The theme is fetched from the registry, the text layer is
-// appended, and the result is composed into SVG. The PRNG seed is
-// salted with a per-request random number so multi-frame themes show a
-// different frame/combination on each request.
+// appended, and the result is composed into SVG. When the registry is a
+// lazy RenderPreparer (the one-image-per-slot strategy), each render
+// first swaps in ONE freshly loaded slot candidate and works on a
+// private snapshot — consecutive requests each evolve one part while
+// concurrent renders stay isolated. The PRNG seed is salted with a
+// per-request random number so the text-layer randomness differs per
+// request.
 func (s *Server) compose(entry composer.ThemeEntry, q *queryParams, text string,
 	style theme.TextStyle) (string, error) {
 	base, ok := s.themes.Get(entry.Name)
 	if !ok {
 		return "", fmt.Errorf("theme %q not found", entry.Name)
+	}
+	if rp, ok := s.themes.(composer.RenderPreparer); ok {
+		snapshot, err := rp.PrepareRender(entry.Name)
+		if err != nil {
+			return "", err
+		}
+		base = snapshot
 	}
 
 	pos := theme.TextPos{X: q.X, Y: q.Y, RX: q.RX, RY: q.RY}

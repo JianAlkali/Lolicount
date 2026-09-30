@@ -52,6 +52,54 @@ type CharacterTheme struct {
 	Parts    map[int]render.ImageLayer
 }
 
+// readCharacterManifest parses ren.json plus config.json (when present
+// and valid). config.json is required: without its ranges there is no
+// slot structure to build.
+func readCharacterManifest(fsys fs.FS, dir string) ([]CharacterManifest, *CharacterConfig, error) {
+	manifestPath := path.Join(dir, ManifestName)
+	raw, err := fs.ReadFile(fsys, manifestPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("read %s: %w", manifestPath, err)
+	}
+	var manifest []CharacterManifest
+	if err := json.Unmarshal(raw, &manifest); err != nil {
+		return nil, nil, fmt.Errorf("parse %s: %w", manifestPath, err)
+	}
+	if len(manifest) == 0 {
+		return nil, nil, fmt.Errorf("%s: empty manifest", manifestPath)
+	}
+
+	configPath := path.Join(dir, "config.json")
+	craw, err := fs.ReadFile(fsys, configPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("read %s: %w", configPath, err)
+	}
+	var cfg CharacterConfig
+	if err := json.Unmarshal(craw, &cfg); err != nil {
+		return nil, nil, fmt.Errorf("parse %s: %w", configPath, err)
+	}
+	if cfg.CanvasW <= 0 || cfg.CanvasH <= 0 || len(cfg.Ranges) == 0 {
+		return nil, nil, fmt.Errorf("%s: invalid config (canvas/ranges)", configPath)
+	}
+	return manifest, &cfg, nil
+}
+
+// readCharacterDisplay parses display.json when present and valid.
+func readCharacterDisplay(fsys fs.FS, dir string) *theme.DisplayConfig {
+	raw, err := fs.ReadFile(fsys, path.Join(dir, "display.json"))
+	if err != nil {
+		return nil
+	}
+	var dp theme.DisplayConfig
+	if err := json.Unmarshal(raw, &dp); err != nil {
+		return nil
+	}
+	if dp.Size > 0 {
+		return &dp
+	}
+	return nil
+}
+
 // LoadCharacterTheme reads ren.json + config.json + display.json +
 // the ren/ layer directory from fsys (rooted at the theme dir) and
 // pre-decodes every referenced layer into a data URI. A theme directory
