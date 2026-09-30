@@ -196,6 +196,14 @@ docker run -d -p 9721:9721 \
   ghcr.io/miaoledor/lolicount:latest
 ```
 
+镜像有两个自动来源(`.github/workflows/`):
+
+- **ghcr.io**:推送 `v*` tag 时 `release.yml` 构建并推送
+  `ghcr.io/miaoledor/lolicount:<version>`(另带 `latest` 与主/次版本 tag);
+- **Release Assets**:发布 Release 时 `release-assets.yml` 构建镜像并打包为
+  `lolicount-<tag>-docker-image.tar.gz` 挂到该 Release 的 Assets,`docker load`
+  即可离线导入;发布后才想补挂,在 Actions 手动触发该 workflow 并填 tag。
+
 **docker compose**:在 `docker-compose.yml` 的 `environment` 设 `BASE_URL`,
 或导出环境变量:
 
