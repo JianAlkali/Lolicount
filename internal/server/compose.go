@@ -57,11 +57,12 @@ func BuildThemeLayers(base *theme.Theme, scale float64, text string,
 			layers = append(layers, &cp)
 			bgW, bgH = imgW, imgH
 		case *render.RandomPickLayer:
-			// Scale every option to the display size. Because frames in a
-			// multi-frame theme can have different aspect ratios, the
-			// scaled dimensions vary per frame. The canvas must
-			// accommodate the largest frame so no frame is clipped — use
-			// the max scaled width and height across all options.
+			// Scale every option to the display size and take the max.
+			// Under the lazy one-image-per-slot strategy Options holds
+			// only the resident frame, so FrameDims (every candidate's
+			// dims) is folded in as well — the canvas must accommodate
+			// the largest frame so no frame is clipped and the aspect
+			// ratio stays stable as swaps rotate through frames.
 			scaledOpts := make([]render.ImageOption, len(l.Options))
 			var maxW, maxH int
 			for i, opt := range l.Options {
@@ -78,9 +79,19 @@ func BuildThemeLayers(base *theme.Theme, scale float64, text string,
 					maxH = imgH
 				}
 			}
+			for _, d := range l.FrameDims {
+				imgW, imgH := imgutils.ScaledDims(d.W, d.H, display)
+				if imgW > maxW {
+					maxW = imgW
+				}
+				if imgH > maxH {
+					maxH = imgH
+				}
+			}
 			layers = append(layers, &render.RandomPickLayer{
 				Category:  l.Category,
 				Options:   scaledOpts,
+				FrameDims: l.FrameDims,
 				Transform: imgcore.DefaultTransform(),
 				Z:         l.Z,
 				IsFixed:   l.IsFixed,

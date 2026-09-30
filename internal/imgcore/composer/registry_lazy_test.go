@@ -156,3 +156,48 @@ func TestRegistryVariantsFromCatalog(t *testing.T) {
 		t.Errorf("lian-ren variants: got %d want 311040", lian.Variants)
 	}
 }
+
+// TestRegistryCanvasStableAcrossSwaps pins canvas stability for frame
+// themes whose frames differ in size: every snapshot carries the
+// catalog's max frame dims, so the embedded image's aspect ratio does
+// not jump between requests. Skips when the theme's frames are uniform.
+func TestRegistryCanvasStableAcrossSwaps(t *testing.T) {
+	reg, errs := NewThemeRegistry()
+	if len(errs) > 0 {
+		t.Fatalf("registry errors: %v", errs)
+	}
+	prep := reg.(RenderPreparer)
+	e, ok := reg.(*unifiedRegistry).themes["wenders"]
+	if !ok {
+		t.Fatal("wenders missing")
+	}
+	// Skip uniform-frame themes: nothing to stabilize.
+	uniform := true
+	for _, s := range e.cat.Slots {
+		for _, c := range s.Candidates {
+			if c.Width != e.cat.CanvasW || c.Height != e.cat.CanvasH {
+				uniform = false
+			}
+		}
+	}
+	if uniform {
+		t.Skip("wenders frames are uniform; canvas stability is trivial")
+	}
+
+	seen := map[[2]int]bool{}
+	for i := 0; i < 6; i++ {
+		s, err := prep.PrepareRender("wenders")
+		if err != nil {
+			t.Fatalf("prepare %d: %v", i, err)
+		}
+		seen[[2]int{s.Canvas.Width, s.Canvas.Height}] = true
+	}
+	if len(seen) != 1 {
+		t.Errorf("canvas dims changed across swaps: %v", seen)
+	}
+	for dims := range seen {
+		if dims != [2]int{e.cat.CanvasW, e.cat.CanvasH} {
+			t.Errorf("canvas %dx%d != catalog max %dx%d", dims[0], dims[1], e.cat.CanvasW, e.cat.CanvasH)
+		}
+	}
+}

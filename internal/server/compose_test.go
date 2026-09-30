@@ -152,3 +152,28 @@ func TestBuildThemeLayersRandomPickCanvasFitsAllFrames(t *testing.T) {
 		}
 	}
 }
+
+// TestBuildThemeLayersFrameDimsCanvas pins the lazy-strategy canvas
+// contract: a card theme whose resident assembly holds a single frame
+// must still size the canvas to accommodate EVERY frame's dims carried
+// in FrameDims — otherwise the canvas would shrink/grow as swaps rotate
+// through frames of differing sizes.
+func TestBuildThemeLayersFrameDimsCanvas(t *testing.T) {
+	frames := []struct{ W, H int }{
+		{708, 1242},
+		{660, 1248},
+	}
+	base := makeMultiFrameTheme("frame-dims-test", frames[:1])
+	rpl := base.Layers[0].(*render.RandomPickLayer)
+	rpl.FrameDims = []render.FrameDim{{W: frames[0].W, H: frames[0].H}, {W: frames[1].W, H: frames[1].H}}
+
+	got, err := BuildThemeLayers(base, 0, "1", 50, false, theme.TextStyle{}, theme.TextPos{})
+	if err != nil {
+		t.Fatalf("BuildThemeLayers: %v", err)
+	}
+	// Scaled to a 400px longest edge: the 1242-tall frame gives 228x400,
+	// the 1248-tall one 211x400 — the canvas must fit the 228x400 max.
+	if got.BgW != 228 || got.BgH != 400 {
+		t.Errorf("bg: got %dx%d want 228x400 (max over all FrameDims)", got.BgW, got.BgH)
+	}
+}

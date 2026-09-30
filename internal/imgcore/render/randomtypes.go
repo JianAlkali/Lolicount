@@ -20,4 +20,17 @@ type RandomPickLayer struct {
 	Transform imgcore.Transform // transform applied to the whole layer
 	Z         int
 	IsFixed   bool
+
+	// FrameDims carries the pixel dimensions of EVERY candidate of the
+	// slot, not just the ones currently in Options. Under the lazy
+	// one-image-per-slot strategy Options holds only the resident frame,
+	// while the canvas must accommodate all frames — BuildThemeLayers
+	// scales these dims and folds them into the canvas max. Empty for
+	// eager-built layers (Options already covers every candidate).
+	FrameDims []FrameDim
+}
+
+// FrameDim is one candidate's pixel dimensions (metadata only).
+type FrameDim struct {
+	W, H int
 }

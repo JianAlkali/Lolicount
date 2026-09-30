@@ -221,6 +221,7 @@ func deepCopyTheme(t *theme.Theme) *theme.Theme {
 		case *render.RandomPickLayer:
 			cp := *layer
 			cp.Options = append([]render.ImageOption(nil), layer.Options...)
+			cp.FrameDims = append([]render.FrameDim(nil), layer.FrameDims...)
 			out.Layers[i] = &cp
 		case *render.GroupLayer:
 			cp := *layer

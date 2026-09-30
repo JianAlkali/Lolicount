@@ -130,6 +130,21 @@ func loadFrameCatalog(fsys fs.FS, name string) (*ThemeCatalog, error) {
 	}
 	sort.Slice(frames, func(i, j int) bool { return frames[i].idx < frames[j].idx })
 
+	// Canvas = the MAX dims across all frames (old eager behavior): the
+	// resident assembly holds one frame at a time, and without this floor
+	// the canvas would shrink/grow as swaps rotate through frames of
+	// differing sizes, making the embedded image's aspect ratio jump
+	// between requests.
+	maxW, maxH := 0, 0
+	for _, fr := range frames {
+		if fr.cand.Width > maxW {
+			maxW = fr.cand.Width
+		}
+		if fr.cand.Height > maxH {
+			maxH = fr.cand.Height
+		}
+	}
+
 	slot := &Slot{Candidates: make([]Candidate, len(frames))}
 	for i, fr := range frames {
 		slot.Candidates[i] = fr.cand
@@ -138,8 +153,8 @@ func loadFrameCatalog(fsys fs.FS, name string) (*ThemeCatalog, error) {
 		Name:       name,
 		FrameTheme: true,
 		Slots:      []*Slot{slot},
-		CanvasW:    frames[0].cand.Width,
-		CanvasH:    frames[0].cand.Height,
+		CanvasW:    maxW,
+		CanvasH:    maxH,
 		Variants:   len(frames),
 	}, nil
 }
@@ -258,9 +273,14 @@ func AssembleTheme(fsys fs.FS, cat *ThemeCatalog, pick func(n int) int) (*theme.
 		if len(slot.Candidates) == 1 {
 			out = &layer
 		} else {
+			frameDims := make([]render.FrameDim, len(slot.Candidates))
+			for i, c := range slot.Candidates {
+				frameDims[i] = render.FrameDim{W: c.Width, H: c.Height}
+			}
 			out = &render.RandomPickLayer{
 				Category:  cat.Name,
 				Options:   []render.ImageOption{{ImageLayer: layer, Weight: 1}},
+				FrameDims: frameDims,
 				Transform: imgcore.DefaultTransform(),
 			}
 		}
