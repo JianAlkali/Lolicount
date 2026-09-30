@@ -60,6 +60,12 @@ v0.2.3 起 lolicount 在 counter 路由前加 `sanitizeBackslashEscape` 中间�
 `number` 用于**预览**:指定数字直接展示,不落库、不 +1。真实计数走 `/@:name`
 正常流程。`demo` 是保留 name,固定返回 `0123456789`,也不落库。
 
+### 生成的计数器为什么不显示数字?
+
+Playground 生成的链接默认带 `unshowf=true`(隐藏计数文字,只展示主题画面)。
+需要显示数字时,把链接里的 `unshowf=true` 改成 `unshowf=false`,或直接删掉
+这个参数。Playground 界面已不提供该开关,但 URL 参数始终可用。
+
 ### 主题画廊怎么分享某个主题的链接?
 
 在主题画廊(`/themes`)点击任意主题卡片后,选中态会同步到地址栏

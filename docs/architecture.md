@@ -101,6 +101,8 @@ CREATE TABLE IF NOT EXISTS tb_theme_usage (
   (`ren/*.webp`),每次请求随机组合分层。所有主题统一随机抽帧(已移除 `mode` 参数)。
 - 图层类型:`ImageLayer`、`RandomPickLayer`、`GroupLayer`、`TextLayer`,
   均实现 `imgcore.Layer` 接口。
+- **画布稳定**:`RandomPickLayer` 携带全部候选帧的尺寸元数据(`FrameDims`),
+  画布取所有帧按显示缩放后的最大宽高,随机换帧不跳变。
 - 帧图 base64 内嵌成 data URI `<image>`(离线可用)。
 
 ### 文字风格主题(f-theme)
