@@ -82,7 +82,7 @@ export const gameMeta: Record<
     label: {
       zh: "星光咖啡馆与死神之蝶",
       en: "Cafe Stella",
-      jp: "スターライトカフェと死神の蝶",
+      jp: "喫茶ステラと死神の蝶",
     },
   },
   bangdream: {
@@ -1752,61 +1752,65 @@ export const themeMeta: ThemeMeta[] = [
   },
 
   // Cafe Stella (character themes, composited with faces)
+  // Slug names came from the contributor's xp3 dump dirs and do NOT match the
+  // actual sprites; art identity was verified against layer names
+  // (body_死神服 etc.), eye colors and official art (AGENTS.md: keep slugs
+  // stable so existing embed URLs keep counting, fix labels instead).
   {
     name: "cafestella-nova",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "希",
-    romaji: "noa",
-    aliases: ["noa", "nova", "希"],
+    character: "四季ナツメ",
+    romaji: "shiki natsume",
+    aliases: ["nova", "natsume", "ナツメ", "夏目", "四季夏目"],
   },
   {
     name: "cafestella-yuna",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "深山由夏",
-    romaji: "fukazawa yuna",
-    aliases: ["yuna", "結菜", "深山結菜"],
+    character: "明月栞那",
+    romaji: "akizuki kanna",
+    aliases: ["yuna", "栞那", "kanna", "死神", "死神服"],
   },
   {
     name: "cafestella-riona",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "涼音",
-    romaji: "riona",
-    aliases: ["riona", "涼音"],
+    character: "明月栞那",
+    romaji: "akizuki kanna",
+    aliases: ["riona", "栞那", "kanna", "冬服"],
   },
   {
     name: "cafestella-ai",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "愛衣",
-    romaji: "ai",
-    aliases: ["ai", "愛衣"],
+    character: "汐山涼音",
+    romaji: "shioyama suzune",
+    aliases: ["ai", "涼音", "凉音", "suzune", "女仆"],
   },
   {
     name: "cafestella-shuna",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "栞那",
-    romaji: "shuna",
-    aliases: ["shuna", "栞那"],
+    character: "明月栞那",
+    romaji: "akizuki kanna",
+    aliases: ["shuna", "栞那", "kanna", "冬服"],
   },
   {
     name: "cafestella-ketsie",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "ケットシー",
-    romaji: "ketsie",
-    aliases: ["ketsie", "ケットシー"],
+    character: "火打谷愛衣",
+    romaji: "hiuchidani mei",
+    aliases: ["ketsie", "愛衣", "爱衣", "mei"],
   },
   {
     name: "cafestella-rokuro",
     kind: "character",
     gameKey: "cafe-stella",
-    character: "緑郎",
-    romaji: "rokuro",
-    aliases: ["rokuro", "緑郎"],
+    character: "汐山涼音",
+    romaji: "shioyama suzune",
+    aliases: ["rokuro", "涼音", "凉音", "suzune", "旗袍"],
   },
 
   // Blue Archive (story-portrait expression frames, static card themes)
