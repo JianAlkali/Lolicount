@@ -266,7 +266,13 @@ const widgetSnippet = computed(() => {
 const generate = (e: MouseEvent) => {
   const trimmed = state.name.trim()
   if (!trimmed) return
-  starBurst.value?.trigger(e.clientX, e.clientY)
+  // Fire the fireworks from the button center so keyboard activation
+  // (clientX/Y of 0) still bursts in the right place.
+  const btnRect = (e.currentTarget as HTMLElement | null)?.getBoundingClientRect()
+  starBurst.value?.trigger(
+    btnRect ? btnRect.left + btnRect.width / 2 : e.clientX,
+    btnRect ? btnRect.top + btnRect.height / 2 : e.clientY,
+  )
   const params: ParamState = { ...state }
   params.name = trimmed
   const generatedTheme = themes.value.find((tth) => tth.name === params.theme)
