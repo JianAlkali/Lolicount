@@ -7,10 +7,12 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/compress"
 	"github.com/rs/zerolog"
 
 	"github.com/miaoledor/lolicount/assets"
@@ -150,6 +152,30 @@ func (s *Server) hotLoop() {
 
 // registerRoutes wires all HTTP routes.
 func (s *Server) registerRoutes() {
+	// Compress text-heavy responses: counter SVGs embed ~50KB-1.6MB of
+	// base64 art and gzip fully recovers the base64 inflation. Level
+	// BestSpeed bounds the CPU — a fasthttp limitation is that responses
+	// are re-compressed on every hit with no compressed-body cache, so
+	// heavier levels would tax every README view. Paths serving
+	// already-compressed binaries (PSB models set Content-Encoding
+	// themselves and are auto-skipped by the middleware; webp/png gallery
+	// images and Live2D/Spine model binaries gain nothing from gzip) are
+	// skipped here outright.
+	s.app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
+		Next: func(c fiber.Ctx) bool {
+			p := c.Path()
+			for _, prefix := range []string{
+				"/images/", "/emote/", "/psb/", "/api/psb/", "/live2d/models/", "/spine/",
+			} {
+				if strings.HasPrefix(p, prefix) {
+					return true
+				}
+			}
+			return false
+		},
+	}))
+
 	s.app.Get("/heart-beat", s.heartbeat)
 
 	s.app.Get("/@:name", sanitizeBackslashEscape, s.ipRateLimit, s.counterHandler)
