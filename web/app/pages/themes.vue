@@ -436,11 +436,14 @@ onMounted(async () => {
         <!-- Filter bar: search + type filter. The game dropdown was
              replaced by the collapsible per-source groups below. -->
         <section class="mb-6 rounded-xl bg-loli-cream p-4 space-y-3">
+          <!-- box-border: no global CSS reset is loaded, so <input> keeps
+               the UA content-box and w-full + px-3 + border would overflow
+               the panel by 26px on the right. -->
           <input
             v-model="searchQuery"
             type="text"
             :placeholder="t('themesGallery.searchPlaceholder')"
-            class="w-full border rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink transition"
+            class="w-full box-border border rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink transition"
           />
           <div class="flex items-center gap-2 flex-wrap">
             <button
