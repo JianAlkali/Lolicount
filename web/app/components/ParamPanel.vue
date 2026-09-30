@@ -198,21 +198,6 @@ const sanitizeFloat = (v: string) => v.replace(/[^0-9.]/g, '')
             />
           </td>
         </tr>
-        <tr v-if="panelMode !== 'quick'">
-          <td><code>unshowf</code></td>
-          <td>{{ t('param.unshowf') }}</td>
-          <td>
-            <input
-              :id="'loli-unshowf'"
-              type="checkbox"
-              role="switch"
-              :checked="state.unshowf"
-              @change="update({ unshowf: ($event.target as HTMLInputElement).checked })"
-              class="loli-switch-input"
-            />
-            <label :for="'loli-unshowf'" class="loli-switch-label"><span>ON</span><span>OFF</span></label>
-          </td>
-        </tr>
 
         <tr v-if="panelMode === 'expert'">
           <td colspan="3" class="loli-unusual-caption">{{ t('tool.unusual') }}</td>
@@ -367,51 +352,5 @@ const sanitizeFloat = (v: string) => v.replace(/[^0-9.]/g, '')
   color: #6b7280;
   padding-top: 0.75rem;
   border-bottom: 2px solid #e5d4dc;
-}
-/* Switch toggle, mirroring Moe-Counter's role=switch style. */
-.loli-switch-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.loli-switch-label {
-  position: relative;
-  display: inline-block;
-  width: 3.6em;
-  height: 1.8em;
-  border-radius: 1.8em;
-  background: #9ca3af;
-  cursor: pointer;
-  transition: background 0.3s;
-  user-select: none;
-}
-.loli-switch-label::after {
-  content: "";
-  position: absolute;
-  top: 0.1em;
-  left: 0.1em;
-  width: 1.6em;
-  height: 1.6em;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.3s;
-}
-.loli-switch-label > span {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 12.5%;
-  font-size: 10px;
-  font-weight: bold;
-  color: #fff;
-}
-.loli-switch-input:checked + .loli-switch-label {
-  background: var(--loli-pink);
-}
-.loli-switch-input:checked + .loli-switch-label::after {
-  transform: translateX(1.8em);
 }
 </style>
