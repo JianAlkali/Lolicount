@@ -180,7 +180,8 @@ func TestFrontendServesPrerenderedSubPages(t *testing.T) {
 
 // Hashed _nuxt assets are immutable; HTML entry points must revalidate so
 // a redeploy is picked up instead of serving a stale page that references
-// deleted chunks.
+// deleted chunks; gallery images get a bounded window (they change only
+// with a theme rebuild under a name-stable path).
 func TestFrontendCachePolicy(t *testing.T) {
 	s := newCounterServer(t)
 	req := httptest.NewRequest(http.MethodGet, "/some-spa-route", nil)
@@ -190,5 +191,19 @@ func TestFrontendCachePolicy(t *testing.T) {
 	}
 	if cc := resp.Header.Get("Cache-Control"); cc != "no-store" {
 		t.Errorf("html Cache-Control: got %q want no-store", cc)
+	}
+
+	// A theme thumbnail must carry the bounded image window.
+	thumb := "images/theme-thumbs/cafestella-yuna.webp"
+	if _, err := fs.Stat(assets.DistFS, "dist/"+thumb); err != nil {
+		t.Skipf("assets/dist has no %s; run `pnpm generate` to test frontend serving", thumb)
+	}
+	req = httptest.NewRequest(http.MethodGet, "/"+thumb, nil)
+	resp, err = s.app.Test(req)
+	if err != nil {
+		t.Fatalf("thumb app.Test: %v", err)
+	}
+	if cc := resp.Header.Get("Cache-Control"); cc != "public, max-age=86400" {
+		t.Errorf("thumb Cache-Control: got %q want public, max-age=86400", cc)
 	}
 }
