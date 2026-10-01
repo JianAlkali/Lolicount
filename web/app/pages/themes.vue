@@ -340,7 +340,10 @@ onMounted(async () => {
       <h1 class="text-3xl font-bold text-loli-pink mb-2">{{ t('themesGallery.title') }}</h1>
       <p class="text-sm text-gray-600">{{ t('themesGallery.desc') }}</p>
     </section>
-    <div class="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-8">
+    <!-- min-w-0 on every child: grid items default to min-width auto, so
+         unbreakable output content (embed URLs) would stretch the whole
+         page on phones. -->
+    <div class="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-8 [&>*]:min-w-0">
       <!-- Generator: first in DOM so mobile stacks it above the preview. -->
       <div>
         <!-- Playground -->
