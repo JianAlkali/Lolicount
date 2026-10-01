@@ -353,4 +353,18 @@ const sanitizeFloat = (v: string) => v.replace(/[^0-9.]/g, '')
   padding-top: 0.75rem;
   border-bottom: 2px solid #e5d4dc;
 }
+
+/* Mobile: bigger touch targets, and 16px control text — iOS Safari
+ * auto-zooms the viewport when a focused control's font-size is under
+ * 16px. */
+@media (max-width: 767px) {
+  .loli-mode-btn {
+    min-height: 36px;
+  }
+  .loli-input {
+    min-height: 38px;
+    font-size: 16px;
+    padding: 0.375rem 0.625rem;
+  }
+}
 </style>

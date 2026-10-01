@@ -483,12 +483,13 @@ onMounted(async () => {
         <section class="mb-6 rounded-xl bg-loli-cream p-4 space-y-3">
           <!-- box-border: no global CSS reset is loaded, so <input> keeps
                the UA content-box and w-full + px-3 + border would overflow
-               the panel by 26px on the right. -->
+               the panel by 26px on the right. text-base on mobile: 16px
+               control text prevents iOS focus auto-zoom. -->
           <input
             v-model="searchQuery"
             type="text"
             :placeholder="t('themesGallery.searchPlaceholder')"
-            class="w-full box-border border rounded-lg px-3 py-2 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink transition"
+            class="w-full box-border border rounded-lg px-3 py-2 bg-white text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-loli-pink/40 focus:border-loli-pink transition"
           />
           <div class="flex items-center gap-2 flex-wrap">
             <button
