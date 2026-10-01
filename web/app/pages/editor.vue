@@ -1474,10 +1474,20 @@ git push origin add-theme-&lt;your-theme&gt;</pre>
 
   .quick-panel {
     width: 100%;
+    /* No global CSS reset is loaded, so width:100% + 1rem padding keeps
+     * the UA content-box and the panel overflows the viewport by 2rem. */
+    box-sizing: border-box;
     max-height: 30vh;
     flex-shrink: 0;
     border-right: none;
     border-bottom: 1px solid var(--border-color, #333);
+  }
+
+  /* Same content-box overflow for everything inside the panel:
+   * width 100% plus padding would spill past the panel edge. */
+  .quick-panel,
+  .quick-panel * {
+    box-sizing: border-box;
   }
 
   .quick-mode-layout {
